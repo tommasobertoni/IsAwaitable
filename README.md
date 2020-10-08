@@ -1,7 +1,7 @@
 # IsAwaitable
 
-![License MIT](https://img.shields.io/badge/license-MIT-green)
-![Nuget](https://img.shields.io/nuget/v/IsAwaitable)
+[![License MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Nuget](https://img.shields.io/nuget/v/IsAwaitable)](https://www.nuget.org/packages/IsAwaitable)
 [![CI](https://github.com/tommasobertoni/IsAwaitable/workflows/CI/badge.svg)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/tommasobertoni/IsAwaitable/badge.svg?branch=main)](https://coveralls.io/github/tommasobertoni/IsAwaitable?branch=main)
 
