@@ -3,7 +3,9 @@
 ![License MIT](https://img.shields.io/badge/license-MIT-green)
 ![Nuget](https://img.shields.io/nuget/v/IsAwaitable)
 
-Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an objet or type can be dynamically awaited.**_
+Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited.**_
+
+<br/>
 
 This library can help you with that.<br/>
 The algorithm follows the [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions):
@@ -14,6 +16,8 @@ The algorithm follows the [c# language specification for awaitable expressions](
 >    * `A` implements the interface `System.Runtime.CompilerServices.INotifyCompletion` (hereafter known as `INotifyCompletion` for brevity)
 >    * `A` has an accessible, readable instance property `IsCompleted` of type `bool`
 >    * `A` has an accessible instance method `GetResult` with no parameters and no type parameters
+
+<br/>
 
 # How to use
 
