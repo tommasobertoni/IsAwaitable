@@ -2,7 +2,7 @@
 
 [![License MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Nuget](https://img.shields.io/nuget/v/IsAwaitable)](https://www.nuget.org/packages/IsAwaitable)
-[![CI](https://img.shields.io/github/workflow/status/tommasobertoni/IsAwaitable/CI)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI)
+[![CI](https://img.shields.io/github/workflow/status/tommasobertoni/IsAwaitable/CI/main)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI)
 [![Coverage](https://img.shields.io/coveralls/github/tommasobertoni/IsAwaitable)](https://coveralls.io/github/tommasobertoni/IsAwaitable?branch=main)
 
 Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited.**_
