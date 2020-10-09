@@ -29,8 +29,10 @@ jobs:
           minicover reset
       - name: Test
         run: |
+          echo "Run tests"
           dotnet test --configuration Release --no-build --verbosity normal
-          run: minicover uninstrument
+          echo "Release tests from code coverage setup"
+          minicover uninstrument
       - name: Upload coverage
         env:
           COVERALL_REPO_TOKEN: ${{ secrets.COVERALL_REPO_TOKEN }}
