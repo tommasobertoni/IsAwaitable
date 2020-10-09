@@ -39,4 +39,4 @@ jobs:
           JOB_ID: ${{ github.run_id }}
         run: |
           last_commit_id=$(git rev-parse HEAD)
-          minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "github" --service-job-id "$JOB_ID" --branch "main" --commit "$last_commit_id"
+          minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "github-ci" --service-job-id "$JOB_ID" --branch "main" --commit "$last_commit_id"
