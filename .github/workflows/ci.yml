@@ -2,24 +2,35 @@ name: CI
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main]
   pull_request:
-    branches: [ main, dev ]
+    branches: [main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.301
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity detailed
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      - name: Test
+        run: |
+          dotnet tool install --global minicover
+          minicover instrument
+          minicover reset
+          dotnet test --no-build --verbosity detailed
+          minicover uninstrument
+      - name: Upload coverage
+        env:
+          COVERALL_REPO_TOKEN: ${{ secrets.COVERALL_REPO_TOKEN }}
+        run: |
+          last_commit_id=$(git rev-parse HEAD)
+          now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "local" --service-job-id "${last_commit_id}_${now}" --branch "main" --commit "$last_commit_id"
