@@ -24,24 +24,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Setup tests for coverage report
+      - name: Build
+        run: dotnet build --configuration Release
+      - name: Install minicover
+        run: dotnet tool install --global minicover
+      - name: Setup tests
         run: |
-          echo "Install minicover"
-          dotnet tool install --global minicover
-          echo "Setup tests"
           minicover instrument
           minicover reset
-      - name: Test
-        run: |
-          echo "Run tests"
-          dotnet test --configuration Release --no-build --verbosity normal
-          echo "Release tests from code coverage setup"
-          minicover uninstrument
-
-  coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
+      - name: Execute tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+      - name: Release tests from minicover
+        run: minicover uninstrument
       - name: Upload coverage
         env:
           COVERALL_REPO_TOKEN: ${{ secrets.COVERALL_REPO_TOKEN }}
