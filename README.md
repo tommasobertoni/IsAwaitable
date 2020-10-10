@@ -2,15 +2,13 @@
 
 [![License MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Nuget](https://img.shields.io/nuget/v/IsAwaitable)](https://www.nuget.org/packages/IsAwaitable)
+[![netstandard2.1](https://img.shields.io/badge/netstandard-2.1-blue)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)
 [![CI](https://img.shields.io/github/workflow/status/tommasobertoni/IsAwaitable/CI/main)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI)
 [![Coverage](https://img.shields.io/coveralls/github/tommasobertoni/IsAwaitable)](https://coveralls.io/github/tommasobertoni/IsAwaitable?branch=main)
 
-Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited.**_
+Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited**_.
 
-<br/>
-
-This library can help you with that.<br/>
-The algorithm follows the [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions):
+The evaluation follows the [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions):
 
 > The task of an await expression is required to be ***awaitable***. An expression `t` is awaitable if one of the following holds:
 > *  `t` is of compile time type `dynamic`
@@ -19,11 +17,13 @@ The algorithm follows the [c# language specification for awaitable expressions](
 >    * `A` has an accessible, readable instance property `IsCompleted` of type `bool`
 >    * `A` has an accessible instance method `GetResult` with no parameters and no type parameters
 
-<br/>
-
 # How to use
 
 ```csharp
+// The extension is defined within this namespace
+// in order to be readily available
+using System.Threading.Tasks;
+
 // On instances
 var promise = GetSomethingAsync();
 _ = promise.IsAwaitable(); // true
@@ -69,3 +69,10 @@ var result2 = await AwaitResultOrReturn(fooTask);
 
 // foo == result1 == result2
 ```
+
+## Continuous Integration
+
+[![github-actions](https://img.shields.io/badge/using-GitHub%20Actions-2088FF)](https://github.com/features/actions)
+[![xUnit](https://img.shields.io/badge/using-xUnit-indigo)](https://xunit.net/)
+[![minicover](https://img.shields.io/badge/using-minicover-indigo)](https://github.com/lucaslorentz/minicover)
+[![coveralls](https://img.shields.io/badge/using-coveralls-c05547)](https://coveralls.io/)
