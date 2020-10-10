@@ -1,4 +1,5 @@
-﻿using static IsAwaitable.AwaitableInspector;
+﻿using IsAwaitable;
+using static IsAwaitable.AwaitableInspector;
 
 namespace System.Threading.Tasks
 {
@@ -22,13 +23,12 @@ namespace System.Threading.Tasks
     /// </summary>
     public static class IsAwaitableExtension
     {
-        public static bool IsAwaitable(this object instance)
+        public static bool IsAwaitable(this object? instance)
         {
             if (instance is null)
                 return false;
 
             var type = instance.GetType();
-
             return type.IsAwaitable();
         }
 
@@ -40,6 +40,26 @@ namespace System.Threading.Tasks
             if (IsKnownAwaitable(type))
                 return true;
 
+            if (EvaluationCache.TryGet(type, out bool isAwaitable))
+                return isAwaitable;
+
+            isAwaitable = EvaluateIfTypeIsAwaitable(type);
+
+            EvaluationCache.Add(type, isAwaitable);
+
+            return isAwaitable;
+        }
+
+        private static bool IsKnownAwaitable(Type type)
+        {
+            return
+                typeof(Task).IsAssignableFrom(type) ||
+                typeof(ValueTask).IsAssignableFrom(type) ||
+                typeof(ValueTask<>).IsAssignableFrom(type);
+        }
+
+        private static bool EvaluateIfTypeIsAwaitable(Type type)
+        {
             if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
                 return false;
 
@@ -55,14 +75,6 @@ namespace System.Threading.Tasks
                 return false;
 
             return true;
-        }
-
-        private static bool IsKnownAwaitable(Type type)
-        {
-            return
-                typeof(Task).IsAssignableFrom(type) ||
-                typeof(ValueTask).IsAssignableFrom(type) ||
-                typeof(ValueTask<>).IsAssignableFrom(type);
         }
     }
 }
