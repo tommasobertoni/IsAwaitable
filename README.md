@@ -3,8 +3,11 @@
 [![License MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Nuget](https://img.shields.io/nuget/v/IsAwaitable)](https://www.nuget.org/packages/IsAwaitable)
 [![netstandard2.1](https://img.shields.io/badge/netstandard-2.1-blue)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)
-[![CI](https://img.shields.io/github/workflow/status/tommasobertoni/IsAwaitable/CI/main)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI)
-[![Coverage](https://img.shields.io/coveralls/github/tommasobertoni/IsAwaitable)](https://coveralls.io/github/tommasobertoni/IsAwaitable?branch=main)
+
+| branch | build | coverage |
+|:------:|:-----:|:--------:|
+| main   | [![CI](https://img.shields.io/github/workflow/status/tommasobertoni/IsAwaitable/CI/main)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI+branch%3Amain) | [![Coverage](https://img.shields.io/coveralls/github/tommasobertoni/IsAwaitable/main)](https://coveralls.io/github/tommasobertoni/IsAwaitable?branch=main) |
+| dev    | [![CI](https://img.shields.io/github/workflow/status/tommasobertoni/IsAwaitable/CI/dev)](https://github.com/tommasobertoni/IsAwaitable/actions?query=workflow%3ACI+branch%3Adev) | [![Coverage](https://img.shields.io/coveralls/github/tommasobertoni/IsAwaitable/dev)](https://coveralls.io/github/tommasobertoni/IsAwaitable?branch=dev) |
 
 Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited**_.
 
