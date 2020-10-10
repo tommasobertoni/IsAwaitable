@@ -41,6 +41,9 @@ namespace System.Threading.Tasks
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
+            if (IsKnownAwaitable(type))
+                return true;
+
             if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
                 return false;
 
@@ -136,6 +139,14 @@ namespace System.Threading.Tasks
                 BindingFlags.InvokeMethod);
 
             return method is { } && method.GetParameters().Length == 0;
+        }
+
+        private static bool IsKnownAwaitable(Type type)
+        {
+            return
+                typeof(Task).IsAssignableFrom(type) ||
+                typeof(ValueTask).IsAssignableFrom(type) ||
+                typeof(ValueTask<>).IsAssignableFrom(type);
         }
     }
 }
