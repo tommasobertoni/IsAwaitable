@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   build:
@@ -46,5 +46,6 @@ jobs:
           COVERALL_REPO_TOKEN: ${{ secrets.COVERALL_REPO_TOKEN }}
           JOB_ID: ${{ github.run_id }}
         run: |
-          last_commit_id=$(git rev-parse HEAD)
-          minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "github-ci" --service-job-id "$JOB_ID" --branch "main" --commit "$last_commit_id"
+          commit_hash=$(git rev-parse --short "$GITHUB_SHA")
+          current_branch=${GITHUB_REF##*/}
+          minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "github-ci" --service-job-id "$JOB_ID" --branch "$current_branch" --commit "$commit_hash"
