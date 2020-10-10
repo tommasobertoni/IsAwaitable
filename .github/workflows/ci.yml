@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET Core
@@ -20,6 +19,11 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --configuration Release --no-restore
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Setup tests for coverage report
         run: |
           echo "Install minicover"
@@ -33,6 +37,11 @@ jobs:
           dotnet test --configuration Release --no-build --verbosity normal
           echo "Release tests from code coverage setup"
           minicover uninstrument
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
       - name: Upload coverage
         env:
           COVERALL_REPO_TOKEN: ${{ secrets.COVERALL_REPO_TOKEN }}
