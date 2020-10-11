@@ -34,61 +34,66 @@ namespace System.Threading.Tasks
 
         public static bool IsAwaitable(this Type type)
         {
+            var evaluation = Evaluate(type);
+            return
+                evaluation == TypeEvaluation.Awaitable ||
+                evaluation == TypeEvaluation.AwaitableWithResult;
+        }
+
+        public static bool IsAwaitableWithResult(this object? instance)
+        {
+            if (instance is null)
+                return false;
+
+            var type = instance.GetType();
+            return type.IsAwaitableWithResult();
+        }
+
+        public static bool IsAwaitableWithResult(this Type type)
+        {
+            var evaluation = Evaluate(type);
+            return evaluation == TypeEvaluation.AwaitableWithResult;
+        }
+
+        private static TypeEvaluation Evaluate(Type type)
+        {
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (IsKnownAwaitable(type))
-                return true;
+            if (type.IsKnownAwaitable(out bool withResult))
+                return withResult
+                    ? TypeEvaluation.AwaitableWithResult
+                    : TypeEvaluation.Awaitable;
 
-            if (EvaluationCache.TryGet(type, out bool isAwaitable))
-                return isAwaitable;
+            if (EvaluationCache.TryGet(type, out var evaluation))
+                return evaluation;
 
-            isAwaitable = EvaluateIfTypeIsAwaitable(type);
+            evaluation = InspectAndEvaluateIfTypeIsAwaitable(type);
 
-            EvaluationCache.Add(type, isAwaitable);
+            EvaluationCache.Add(type, evaluation);
 
-            return isAwaitable;
+            return evaluation;
         }
 
-        internal static bool IsKnownAwaitable(Type type)
-        {
-            if (typeof(Task).IsAssignableFrom(type))
-                // Task<> is also assignable to Task
-                return true;
-
-            // But structs can't be inherited.
-
-            if (typeof(ValueTask) == type)
-                return true;
-
-            if (type.IsGenericType)
-            {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-
-                if (typeof(ValueTask<>) == genericTypeDefinition)
-                    return true;
-            }
-
-            return false;
-        }
-
-        internal static bool EvaluateIfTypeIsAwaitable(Type type)
+        private static TypeEvaluation InspectAndEvaluateIfTypeIsAwaitable(Type type)
         {
             if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
-                return false;
+                return TypeEvaluation.NotAwaitable;
 
             var returnType = getAwaiterMethod.ReturnType;
 
             if (!ImplementsINotifyCompletion(returnType))
-                return false;
+                return TypeEvaluation.NotAwaitable;
 
             if (!HasIsCompletedProperty(returnType))
-                return false;
+                return TypeEvaluation.NotAwaitable;
 
-            if (!HasGetResultMethod(returnType))
-                return false;
+            if (!HasGetResultMethod(returnType, out var withResult))
+                return TypeEvaluation.NotAwaitable;
 
-            return true;
+            return withResult
+                ? TypeEvaluation.AwaitableWithResult
+                : TypeEvaluation.Awaitable;
         }
     }
 }

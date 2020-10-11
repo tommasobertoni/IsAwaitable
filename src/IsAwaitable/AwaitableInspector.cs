@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace IsAwaitable
 {
-    internal static class AwaitableInspector
+    internal class AwaitableInspector
     {
         public static bool TryGetGetAwaiterMethod(
             Type type,
@@ -63,14 +63,25 @@ namespace IsAwaitable
             return isCompletedProperty is { };
         }
 
-        public static bool HasGetResultMethod(Type type)
+        public static bool HasGetResultMethod(Type type, out bool withResult)
         {
             var method = type.GetMethod("GetResult",
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.InvokeMethod);
 
-            return method is { } && method.GetParameters().Length == 0;
+            if (method is null || method.GetParameters().Length != 0)
+            {
+                withResult = false;
+                return false;
+            }
+
+            // GetResult() found!
+            // If returns "void", it behaves like "Task" or "ValueTask".
+            // If instead it returns something else, it behaves like "Task<T>" or "ValueTask<T>"
+
+            withResult = method.ReturnType != typeof(void);
+            return true;
         }
 
         /// <summary>

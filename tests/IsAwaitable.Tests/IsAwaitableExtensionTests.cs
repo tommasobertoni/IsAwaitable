@@ -35,14 +35,15 @@ namespace IsAwaitable.Tests
         [Fact]
         public void Task_type_with_result_is_awaitable()
         {
-            Assert.True(typeof(Task<>).IsAwaitable());
+            Assert.True(typeof(Task<>).IsAwaitableWithResult());
+            Assert.True(typeof(Task<int>).IsAwaitableWithResult());
         }
 
         [Fact]
         public async Task Task_instance_with_result_is_awaitable()
         {
             var instance = Task.FromResult(true);
-            Assert.True(instance.IsAwaitable());
+            Assert.True(instance.IsAwaitableWithResult());
             await instance;
         }
 
@@ -63,14 +64,15 @@ namespace IsAwaitable.Tests
         [Fact]
         public void ValueTask_type_with_result_is_awaitable()
         {
-            Assert.True(typeof(ValueTask<>).IsAwaitable());
+            Assert.True(typeof(ValueTask<>).IsAwaitableWithResult());
+            Assert.True(typeof(ValueTask<int>).IsAwaitableWithResult());
         }
 
         [Fact]
         public async Task ValueTask_instance_with_result_is_awaitable()
         {
-            var instance = new ValueTask<bool>(true);
-            Assert.True(instance.IsAwaitable());
+            var instance = new ValueTask<int>(42);
+            Assert.True(instance.IsAwaitableWithResult());
             await instance;
         }
 
@@ -78,6 +80,7 @@ namespace IsAwaitable.Tests
         public void CustomAwaitable_type_is_awaitable()
         {
             Assert.True(typeof(CustomAwaitable).IsAwaitable());
+            Assert.True(typeof(CustomAwaitable).IsAwaitableWithResult());
         }
 
         [Fact]
@@ -85,6 +88,7 @@ namespace IsAwaitable.Tests
         {
             var instance = new CustomAwaitable();
             Assert.True(instance.IsAwaitable());
+            Assert.True(instance.IsAwaitableWithResult());
             await instance;
         }
 
@@ -104,6 +108,7 @@ namespace IsAwaitable.Tests
         public void CustomAwaitableViaExtension_type_is_awaitable()
         {
             Assert.True(typeof(CustomAwaitableViaExtension).IsAwaitable());
+            Assert.True(typeof(CustomAwaitableViaExtension).IsAwaitableWithResult());
         }
 
         [Fact]
@@ -111,6 +116,7 @@ namespace IsAwaitable.Tests
         {
             var instance = new CustomAwaitableViaExtension();
             Assert.True(instance.IsAwaitable());
+            Assert.True(instance.IsAwaitableWithResult());
             await instance;
         }
 
@@ -172,6 +178,35 @@ namespace IsAwaitable.Tests
 
             // await new MissingGetResult();
             // Error CS0117  'MissingGetResult' does not contain a definition for 'GetResult'
+        }
+
+        [Theory]
+        [InlineData(typeof(Task))]
+        [InlineData(typeof(ValueTask))]
+        [InlineData(typeof(CustomDelay))]
+        public void Some_awaitables_do_not_return_anything(Type type)
+        {
+            Assert.True(type.IsAwaitable());
+            Assert.False(type.IsAwaitableWithResult());
+        }
+
+        [Theory]
+        [InlineData(typeof(Task<>))]
+        [InlineData(typeof(ValueTask<>))]
+        [InlineData(typeof(CustomAwaitable))]
+        public void Some_awaitables_return_something(Type type)
+        {
+            Assert.True(type.IsAwaitable());
+            Assert.True(type.IsAwaitableWithResult());
+        }
+
+        [Theory]
+        [InlineData(typeof(CustomGenericTaskWithoutResult<>))]
+        [InlineData(typeof(CustomGenericTaskWithoutResult<object>))]
+        public void Non_task_related_generics_are_not_confused(Type type)
+        {
+            Assert.True(type.IsAwaitable());
+            Assert.False(type.IsAwaitableWithResult());
         }
 
         public void Dispose()
