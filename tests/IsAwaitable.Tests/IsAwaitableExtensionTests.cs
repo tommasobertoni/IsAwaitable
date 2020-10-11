@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace IsAwaitable.Tests
+namespace IsAwaitable
 {
     public class IsAwaitableExtensionTests : IDisposable
     {
@@ -16,6 +16,7 @@ namespace IsAwaitable.Tests
         public void Control_types_are_not_awaitable(Type type)
         {
             Assert.False(type.IsAwaitable());
+            Assert.False(type.IsAwaitableWithResult());
         }
 
         [Fact]
@@ -35,7 +36,9 @@ namespace IsAwaitable.Tests
         [Fact]
         public void Task_type_with_result_is_awaitable()
         {
+            Assert.True(typeof(Task<>).IsAwaitable());
             Assert.True(typeof(Task<>).IsAwaitableWithResult());
+            Assert.True(typeof(Task<int>).IsAwaitable());
             Assert.True(typeof(Task<int>).IsAwaitableWithResult());
         }
 
@@ -43,6 +46,7 @@ namespace IsAwaitable.Tests
         public async Task Task_instance_with_result_is_awaitable()
         {
             var instance = Task.FromResult(true);
+            Assert.True(instance.IsAwaitable());
             Assert.True(instance.IsAwaitableWithResult());
             await instance;
         }
@@ -64,7 +68,9 @@ namespace IsAwaitable.Tests
         [Fact]
         public void ValueTask_type_with_result_is_awaitable()
         {
+            Assert.True(typeof(ValueTask<>).IsAwaitable());
             Assert.True(typeof(ValueTask<>).IsAwaitableWithResult());
+            Assert.True(typeof(ValueTask<int>).IsAwaitable());
             Assert.True(typeof(ValueTask<int>).IsAwaitableWithResult());
         }
 
@@ -72,6 +78,7 @@ namespace IsAwaitable.Tests
         public async Task ValueTask_instance_with_result_is_awaitable()
         {
             var instance = new ValueTask<int>(42);
+            Assert.True(instance.IsAwaitable());
             Assert.True(instance.IsAwaitableWithResult());
             await instance;
         }
@@ -96,12 +103,14 @@ namespace IsAwaitable.Tests
         public void Error_if_null_type()
         {
             Assert.Throws<ArgumentNullException>(() => (null as Type).IsAwaitable());
+            Assert.Throws<ArgumentNullException>(() => (null as Type).IsAwaitableWithResult());
         }
 
         [Fact]
         public void Does_not_throw_on_null_instance()
         {
             Assert.False((null as object).IsAwaitable());
+            Assert.False((null as object).IsAwaitableWithResult());
         }
 
         [Fact]
@@ -124,6 +133,7 @@ namespace IsAwaitable.Tests
         public void Awaitable_must_have_a_GetAwaiter_method()
         {
             Assert.False(typeof(MissingGetAwaiter).IsAwaitable());
+            Assert.False(typeof(MissingGetAwaiter).IsAwaitableWithResult());
 
             // await new MissingGetAwaiter();
             // Error CS1061 'MissingGetAwaiter' does not contain a definition for
@@ -136,6 +146,7 @@ namespace IsAwaitable.Tests
         public void Awaiter_must_implement_INotifyCompletion()
         {
             Assert.False(typeof(MissingINotifyCompletion).IsAwaitable());
+            Assert.False(typeof(MissingINotifyCompletion).IsAwaitableWithResult());
 
             // await new MissingINotifyCompletion();
             // Error CS4027 'MissingINotifyCompletion' does not implement 'INotifyCompletion'
@@ -145,6 +156,7 @@ namespace IsAwaitable.Tests
         public void Awaiter_must_have_IsCompleted_property()
         {
             Assert.False(typeof(MissingIsCompletedProperty).IsAwaitable());
+            Assert.False(typeof(MissingIsCompletedProperty).IsAwaitableWithResult());
 
             // await new MissingIsCompletedProperty();
             // Error CS0117 'MissingIsCompletedProperty' does not contain
@@ -155,6 +167,7 @@ namespace IsAwaitable.Tests
         public void Awaiter_must_have_public_IsCompleted_property()
         {
             Assert.False(typeof(MissingPublicIsCompletedProperty).IsAwaitable());
+            Assert.False(typeof(MissingPublicIsCompletedProperty).IsAwaitableWithResult());
 
             // await new MissingPublicIsCompletedProperty();
             // Error CS0117 'MissingIsCompletedProperty' does not contain
@@ -165,6 +178,7 @@ namespace IsAwaitable.Tests
         public void Awaiter_must_have_bool_IsCompleted_property()
         {
             Assert.False(typeof(MissingBoolIsCompletedProperty).IsAwaitable());
+            Assert.False(typeof(MissingBoolIsCompletedProperty).IsAwaitableWithResult());
 
             // await new MissingBoolIsCompletedProperty();
             // Error CS0117 'MissingIsCompletedProperty' does not contain
@@ -175,6 +189,7 @@ namespace IsAwaitable.Tests
         public void Awaiter_must_have_GetResult_method()
         {
             Assert.False(typeof(MissingGetResult).IsAwaitable());
+            Assert.False(typeof(MissingGetResult).IsAwaitableWithResult());
 
             // await new MissingGetResult();
             // Error CS0117  'MissingGetResult' does not contain a definition for 'GetResult'
