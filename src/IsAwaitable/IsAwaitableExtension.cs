@@ -50,15 +50,29 @@ namespace System.Threading.Tasks
             return isAwaitable;
         }
 
-        private static bool IsKnownAwaitable(Type type)
+        internal static bool IsKnownAwaitable(Type type)
         {
-            return
-                typeof(Task).IsAssignableFrom(type) ||
-                typeof(ValueTask).IsAssignableFrom(type) ||
-                typeof(ValueTask<>).IsAssignableFrom(type);
+            if (typeof(Task).IsAssignableFrom(type))
+                // Task<> is also assignable to Task
+                return true;
+
+            // But structs can't be inherited.
+
+            if (typeof(ValueTask) == type)
+                return true;
+
+            if (type.IsGenericType)
+            {
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+                if (typeof(ValueTask<>) == genericTypeDefinition)
+                    return true;
+            }
+
+            return false;
         }
 
-        private static bool EvaluateIfTypeIsAwaitable(Type type)
+        internal static bool EvaluateIfTypeIsAwaitable(Type type)
         {
             if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
                 return false;
