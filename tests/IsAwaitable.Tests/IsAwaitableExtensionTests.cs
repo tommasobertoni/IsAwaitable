@@ -4,7 +4,7 @@ using Xunit;
 
 namespace IsAwaitable.Tests
 {
-    public class IsAwaitableExtensionTests
+    public class IsAwaitableExtensionTests : IDisposable
     {
         [Theory]
         [InlineData(typeof(object))]
@@ -172,6 +172,11 @@ namespace IsAwaitable.Tests
 
             // await new MissingGetResult();
             // Error CS0117  'MissingGetResult' does not contain a definition for 'GetResult'
+        }
+
+        public void Dispose()
+        {
+            EvaluationCache.Clear();
         }
     }
 }
