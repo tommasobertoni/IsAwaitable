@@ -19,4 +19,12 @@ namespace IsAwaitable
             new ValueTask<int>();
         }
     }
+
+    public class CustomGenericTaskWithoutResult<T> : Task
+    {
+        public CustomGenericTaskWithoutResult(Action action)
+            : base(action)
+        {
+        }
+    }
 }
