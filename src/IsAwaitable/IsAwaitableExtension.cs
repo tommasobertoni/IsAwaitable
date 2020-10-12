@@ -34,7 +34,8 @@ namespace System.Threading.Tasks
 
         public static bool IsAwaitable(this Type type)
         {
-            var evaluation = Evaluate(type);
+            var evaluation = GetEvaluationFor(type);
+            
             return
                 evaluation == TypeEvaluation.Awaitable ||
                 evaluation == TypeEvaluation.AwaitableWithResult;
@@ -51,11 +52,11 @@ namespace System.Threading.Tasks
 
         public static bool IsAwaitableWithResult(this Type type)
         {
-            var evaluation = Evaluate(type);
+            var evaluation = GetEvaluationFor(type);
             return evaluation == TypeEvaluation.AwaitableWithResult;
         }
 
-        private static TypeEvaluation Evaluate(Type type)
+        private static TypeEvaluation GetEvaluationFor(Type type)
         {
             if (type is null)
                 throw new ArgumentNullException(nameof(type));

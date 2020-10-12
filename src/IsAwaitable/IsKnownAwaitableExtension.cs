@@ -16,7 +16,8 @@ namespace IsAwaitable
 
         public static bool IsKnownAwaitable(this Type type)
         {
-            var evaluation = Evaluate(type);
+            var evaluation = GetEvaluationFor(type);
+            
             return
                 evaluation == TypeEvaluation.Awaitable ||
                 evaluation == TypeEvaluation.AwaitableWithResult;
@@ -33,12 +34,15 @@ namespace IsAwaitable
 
         public static bool IsKnownAwaitableWithResult(this Type type)
         {
-            var evaluation = Evaluate(type);
+            var evaluation = GetEvaluationFor(type);
             return evaluation == TypeEvaluation.AwaitableWithResult;
         }
 
-        internal static TypeEvaluation Evaluate(this Type type)
+        internal static TypeEvaluation GetEvaluationFor(this Type type)
         {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+
             // Known awaitable types are: Task, Task<>, ValueTask, ValueTask<>.
 
             if (type.IsGenericType)
