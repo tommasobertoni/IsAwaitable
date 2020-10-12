@@ -15,7 +15,8 @@ namespace IsAwaitable
         [InlineData(typeof(IsKnownAwaitableExtensionTests))]
         public void Control_types_are_not_known_awaitables(Type type)
         {
-            Assert.False(type.IsKnownAwaitable(out _));
+            Assert.False(type.IsKnownAwaitable());
+            Assert.False(type.IsKnownAwaitableWithResult());
         }
 
         [Theory]
@@ -24,7 +25,8 @@ namespace IsAwaitable
         [InlineData(typeof(CustomAwaitableViaExtension))]
         public void Not_all_awaitable_types_are_known_awaitables(Type type)
         {
-            Assert.False(type.IsKnownAwaitable(out _));
+            Assert.False(type.IsKnownAwaitable());
+            Assert.False(type.IsKnownAwaitableWithResult());
         }
 
         [Theory]
@@ -39,8 +41,10 @@ namespace IsAwaitable
         [InlineData(typeof(ValueTask<object>), true)]
         public void Known_awaitable_types_are_awaitable(Type type, bool shouldBeWithResult)
         {
-            Assert.True(type.IsKnownAwaitable(out bool withResult));
-            Assert.Equal(shouldBeWithResult, withResult);
+            Assert.True(type.IsKnownAwaitable());
+
+            if (shouldBeWithResult)
+                Assert.True(type.IsKnownAwaitableWithResult());
         }
 
         [Theory]
@@ -48,8 +52,8 @@ namespace IsAwaitable
         [InlineData(typeof(CustomGenericTaskWithoutResult<object>))]
         public void Non_task_related_generics_are_not_confused(Type type)
         {
-            Assert.True(type.IsKnownAwaitable(out bool withResult));
-            Assert.False(withResult);
+            Assert.True(type.IsKnownAwaitable());
+            Assert.False(type.IsKnownAwaitableWithResult());
         }
     }
 }

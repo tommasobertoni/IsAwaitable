@@ -60,10 +60,11 @@ namespace System.Threading.Tasks
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (type.IsKnownAwaitable(out bool withResult))
-                return withResult
-                    ? TypeEvaluation.AwaitableWithResult
-                    : TypeEvaluation.Awaitable;
+            if (type.IsKnownAwaitableWithResult())
+                return TypeEvaluation.AwaitableWithResult;
+
+            if (type.IsKnownAwaitable())
+                return TypeEvaluation.Awaitable;
 
             if (EvaluationCache.TryGet(type, out var evaluation))
                 return evaluation;
