@@ -8,6 +8,7 @@ namespace IsAwaitable
         public CustomTask(Action action)
             : base(action)
         {
+            Start();
         }
     }
 
@@ -16,7 +17,7 @@ namespace IsAwaitable
         public CustomTask(Func<TResult> function)
             : base(function)
         {
-            new ValueTask<int>();
+            Start();
         }
     }
 
@@ -25,6 +26,7 @@ namespace IsAwaitable
         public CustomGenericTaskWithoutResult(Action action)
             : base(action)
         {
+            Start();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -29,6 +30,20 @@ namespace IsAwaitable
             Assert.False(type.IsKnownAwaitableWithResult());
         }
 
+        [Fact]
+        public void Error_if_null_type()
+        {
+            Assert.Throws<ArgumentNullException>(() => (null as Type).IsKnownAwaitable());
+            Assert.Throws<ArgumentNullException>(() => (null as Type).IsKnownAwaitableWithResult());
+        }
+
+        [Fact]
+        public void Does_not_throw_on_null_instance()
+        {
+            Assert.False((null as object).IsKnownAwaitable());
+            Assert.False((null as object).IsKnownAwaitableWithResult());
+        }
+
         [Theory]
         [InlineData(typeof(Task), false)]
         [InlineData(typeof(CustomTask), false)]
@@ -48,6 +63,16 @@ namespace IsAwaitable
         }
 
         [Theory]
+        [MemberData(nameof(KnownAwaitableTypes))]
+        public void Known_awaitable_instances_are_awaitable(object instance, bool shouldBeWithResult)
+        {
+            Assert.True(instance.IsKnownAwaitable());
+
+            if (shouldBeWithResult)
+                Assert.True(instance.IsKnownAwaitableWithResult());
+        }
+
+        [Theory]
         [InlineData(typeof(CustomGenericTaskWithoutResult<>))]
         [InlineData(typeof(CustomGenericTaskWithoutResult<object>))]
         public void Non_task_related_generics_are_not_confused(Type type)
@@ -55,5 +80,16 @@ namespace IsAwaitable
             Assert.True(type.IsKnownAwaitable());
             Assert.False(type.IsKnownAwaitableWithResult());
         }
+
+        public static IEnumerable<object[]> KnownAwaitableTypes =>
+            new object[][]
+            {
+                new object[] { Task.CompletedTask, false },
+                new object[] { new CustomTask(() => { }), false },
+                new object[] { Task.FromResult(42), true },
+                new object[] { new CustomTask<int>(() => 42), true },
+                new object[] { new ValueTask(), false },
+                new object[] { new ValueTask<int>(42), true },
+            };
     }
 }
