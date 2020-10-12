@@ -34,47 +34,68 @@ namespace System.Threading.Tasks
 
         public static bool IsAwaitable(this Type type)
         {
+            var evaluation = GetEvaluationFor(type);
+            
+            return
+                evaluation == TypeEvaluation.Awaitable ||
+                evaluation == TypeEvaluation.AwaitableWithResult;
+        }
+
+        public static bool IsAwaitableWithResult(this object? instance)
+        {
+            if (instance is null)
+                return false;
+
+            var type = instance.GetType();
+            return type.IsAwaitableWithResult();
+        }
+
+        public static bool IsAwaitableWithResult(this Type type)
+        {
+            var evaluation = GetEvaluationFor(type);
+            return evaluation == TypeEvaluation.AwaitableWithResult;
+        }
+
+        private static TypeEvaluation GetEvaluationFor(Type type)
+        {
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (IsKnownAwaitable(type))
-                return true;
+            if (type.IsKnownAwaitableWithResult())
+                return TypeEvaluation.AwaitableWithResult;
 
-            if (EvaluationCache.TryGet(type, out bool isAwaitable))
-                return isAwaitable;
+            if (type.IsKnownAwaitable())
+                return TypeEvaluation.Awaitable;
 
-            isAwaitable = EvaluateIfTypeIsAwaitable(type);
+            if (EvaluationCache.TryGet(type, out var evaluation))
+                return evaluation;
 
-            EvaluationCache.Add(type, isAwaitable);
+            evaluation = InspectAndEvaluateIfTypeIsAwaitable(type);
 
-            return isAwaitable;
+            EvaluationCache.Add(type, evaluation);
+
+            return evaluation;
         }
 
-        private static bool IsKnownAwaitable(Type type)
-        {
-            return
-                typeof(Task).IsAssignableFrom(type) ||
-                typeof(ValueTask).IsAssignableFrom(type) ||
-                typeof(ValueTask<>).IsAssignableFrom(type);
-        }
-
-        private static bool EvaluateIfTypeIsAwaitable(Type type)
+        private static TypeEvaluation InspectAndEvaluateIfTypeIsAwaitable(Type type)
         {
             if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
-                return false;
+                return TypeEvaluation.NotAwaitable;
 
             var returnType = getAwaiterMethod.ReturnType;
 
             if (!ImplementsINotifyCompletion(returnType))
-                return false;
+                return TypeEvaluation.NotAwaitable;
 
             if (!HasIsCompletedProperty(returnType))
-                return false;
+                return TypeEvaluation.NotAwaitable;
 
-            if (!HasGetResultMethod(returnType))
-                return false;
+            if (!HasGetResultMethod(returnType, out var withResult))
+                return TypeEvaluation.NotAwaitable;
 
-            return true;
+            return withResult
+                ? TypeEvaluation.AwaitableWithResult
+                : TypeEvaluation.Awaitable;
         }
     }
 }

@@ -23,6 +23,6 @@ namespace IsAwaitable
             continuation();
         }
 
-        public void GetResult() { }
+        public bool GetResult() => true;
     }
 }
