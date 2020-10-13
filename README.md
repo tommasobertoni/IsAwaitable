@@ -11,16 +11,53 @@
 
 Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited**_.
 
-The evaluation follows the [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions):
+The library provides the following extension methods:
 
-> The task of an await expression is required to be ***awaitable***. An expression `t` is awaitable if one of the following holds:
+```csharp
+// Checks if it's awaitable
+bool IsAwaitable(this object? instance);
+bool IsAwaitable(this Type type);
+
+// Check if it's awaitable and returns a result
+bool IsAwaitableWithResult(this object? instance);
+bool IsAwaitableWithResult(this Type type);
+```
+(and some bonus extensions)
+```csharp
+// Known awaitables: Task, Task<T>, ValueTask, ValueTask<T>
+bool IsKnownAwaitable(this object? instance);
+bool IsKnownAwaitable(this Type type);
+
+// Is Task<T> or ValueTask<T>
+bool IsKnownAwaitableWithResult(this object? instance);
+bool IsKnownAwaitableWithResult(this Type type);
+```
+
+This is the pseudo code of the evaluation:
+
+```csharp
+if type is a known awaitable type
+    return true (and if it returns a result)
+
+if type was already inspected earlier
+    return cached evaluation
+
+evaluation = EvaluateAsPerLanguageSpecification(type)
+cache(evaluation)
+
+return evaluation
+```
+
+The [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions) states that:
+
+> An expression `t` is awaitable if one of the following holds:
 > *  `t` is of compile time type `dynamic`
 > *  `t` has an accessible instance or extension method called `GetAwaiter` with no parameters and no type parameters, and a return type `A` for which all of the following hold:
 >    * `A` implements the interface `System.Runtime.CompilerServices.INotifyCompletion` (hereafter known as `INotifyCompletion` for brevity)
 >    * `A` has an accessible, readable instance property `IsCompleted` of type `bool`
 >    * `A` has an accessible instance method `GetResult` with no parameters and no type parameters
 
-# How to use
+# Samples
 
 ```csharp
 // The extension is defined within this namespace
@@ -28,15 +65,20 @@ The evaluation follows the [c# language specification for awaitable expressions]
 using System.Threading.Tasks;
 
 // On instances
-var promise = GetSomethingAsync();
+Task doAsync = DoSomethingAsync();
+_ = doAsync.IsAwaitable(); // true
+
+// Returing a result
+Task<int> promise = GetSomethingAsync();
 _ = promise.IsAwaitable(); // true
+_ = promise.IsAwaitableWithResult(); // true
 
 // On types
 _ = typeof(Task).IsAwaitable(); // true
 
 // On value tasks
 _ = typeof(ValueTask).IsAwaitable(); // true
-_ = typeof(ValueTask<>).IsAwaitable(); // true
+_ = typeof(ValueTask<>).IsAwaitableWithResult(); // true
 
 // On custom awaitables!
 class CustomDelay
@@ -52,6 +94,8 @@ class CustomDelay
 
 var delay = new CustomDelay(TimeSpan.FromSeconds(2));
 _ = delay.IsAwaitable(); // true
+_ = delay.IsAwaitableWithResult(); // false
+
 await delay;
 ```
 
