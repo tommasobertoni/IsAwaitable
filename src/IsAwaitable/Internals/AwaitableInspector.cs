@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if !NETSTANDARD2_0
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -11,7 +13,11 @@ namespace IsAwaitable
     {
         public static bool TryGetGetAwaiterMethod(
             Type type,
+#if NETSTANDARD2_0
+            out MethodInfo getAwaiterMethod)
+#else
             [MaybeNullWhen(false)] out MethodInfo getAwaiterMethod)
+#endif
         {
             getAwaiterMethod = type.GetMethod("GetAwaiter",
                 BindingFlags.Instance |

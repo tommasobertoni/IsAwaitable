@@ -1,22 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Version>1.1.0</Version>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Properties related to NuGet packaging -->
+    <IsPackable>True</IsPackable>
+    <PackageId>IsAwaitable</PackageId>
     <Authors>Tommaso Bertoni</Authors>
     <Title>IsAwaitable</Title>
     <Copyright>Copyright © Tommaso Bertoni 2020</Copyright>
     <PackageProjectUrl>https://github.com/tommasobertoni/IsAwaitable</PackageProjectUrl>
     <RepositoryUrl>https://github.com/tommasobertoni/IsAwaitable</RepositoryUrl>
     <PackageTags>await awaiter awaitable task valuetask tpl</PackageTags>
-    <PackageReleaseNotes>Introduces the ability to check if a type or an instance can be awaited and the operation will return a result.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <Description>Runtime check if an object or type can be awaited.</Description>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+  </ItemGroup>
     
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

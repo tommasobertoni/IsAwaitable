@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IsAwaitable", "src\IsAwaitable\IsAwaitable.csproj", "{D52680B8-ABCB-4391-923A-02C8DAD1102D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsAwaitable", "src\IsAwaitable\IsAwaitable.csproj", "{D52680B8-ABCB-4391-923A-02C8DAD1102D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1B0DD46A-56B7-442A-980E-80598FAB9181}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{68C25DA1-F082-406C-83C0-F1129C84FFE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IsAwaitable.Tests", "tests\IsAwaitable.Tests\IsAwaitable.Tests.csproj", "{79F4CF20-2948-42DF-BE4C-BAECE1EAC587}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsAwaitable.Tests", "tests\IsAwaitable.Tests\IsAwaitable.Tests.csproj", "{79F4CF20-2948-42DF-BE4C-BAECE1EAC587}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
