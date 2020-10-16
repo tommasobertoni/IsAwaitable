@@ -16,9 +16,9 @@ jobs:
         with:
           dotnet-version: 3.1.403
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build src/IsAwaitable/IsAwaitable.csproj --configuration Release --no-restore
 
   test:
     needs: build
@@ -42,7 +42,7 @@ jobs:
 
   coverage:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
@@ -56,7 +56,7 @@ jobs:
           minicover instrument
           minicover reset
       - name: Execute tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test --configuration Release --framework netcoreapp3.1 --no-build --verbosity normal
       - name: Release tests from minicover
         run: minicover uninstrument
       - name: Upload coverage
