@@ -64,12 +64,19 @@ namespace IsAwaitable
 
         [Theory]
         [MemberData(nameof(KnownAwaitableTypes))]
-        public void Known_awaitable_instances_are_awaitable(object instance, bool shouldBeWithResult)
+        public async Task Known_awaitable_instances_are_awaitable(object instance, bool shouldBeWithResult)
         {
             Assert.True(instance.IsKnownAwaitable());
 
             if (shouldBeWithResult)
+            {
                 Assert.True(instance.IsKnownAwaitableWithResult());
+                _ = await (dynamic)instance;
+            }
+            else
+            {
+                await (dynamic)instance;
+            }
         }
 
         [Theory]
@@ -81,7 +88,7 @@ namespace IsAwaitable
             Assert.False(type.IsKnownAwaitableWithResult());
         }
 
-        public static IEnumerable<object[]> KnownAwaitableTypes =>
+        public static IEnumerable<object[]> KnownAwaitableTypes() =>
             new object[][]
             {
                 new object[] { Task.CompletedTask, false },
