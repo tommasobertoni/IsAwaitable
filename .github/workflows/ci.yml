@@ -72,7 +72,7 @@ jobs:
           current_branch=${GITHUB_REF##*/}
           minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "github-ci" --service-job-id "$JOB_ID" --branch "$current_branch" --commit "$commit_hash"
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v
+        uses: actions/upload-artifact@v2
         with:
           name: coverage-results
           path: |
