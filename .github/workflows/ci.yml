@@ -25,13 +25,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
+      - name: Setup .NET Core 3.1
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.403
-      - uses: actions/setup-dotnet@v1
+      - name: Setup .NET Core 2.1
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 2.1.811
-      - uses: microsoft/setup-msbuild@v1.0.2
+      - name: Setup .NET Framework
+        uses: microsoft/setup-msbuild@v1.0.2
       - run: dotnet build --configuration Release
       - name: Execute tests on .NET Core 3.1
         run: dotnet test --configuration Release --framework netcoreapp3.1 --no-build --verbosity normal
@@ -42,13 +45,14 @@ jobs:
 
   coverage:
     needs: test
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.403
-      - run: dotnet build --configuration Release
+      - run: dotnet build --configuration Release src/IsAwaitable/IsAwaitable.csproj
+      - run: dotnet build --configuration Release tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj --framework netcoreapp3.1
       - name: Install minicover
         run: dotnet tool install --global minicover
       - name: Setup tests
