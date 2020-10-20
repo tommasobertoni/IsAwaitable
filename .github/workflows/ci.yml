@@ -14,7 +14,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.301
+          dotnet-version: 3.1.x
       - name: Install dependencies
         run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - name: Build
@@ -28,11 +28,11 @@ jobs:
       - name: Setup .NET Core 3.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.301
+          dotnet-version: 3.1.x
       - name: Setup .NET Core 2.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 2.1.811
+          dotnet-version: 2.1.x
       - name: Setup .NET Framework
         uses: microsoft/setup-msbuild@v1.0.2
       - run: dotnet build --configuration Release
@@ -50,31 +50,17 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.301
+          dotnet-version: 3.1.x
       - run: dotnet build --configuration Release src/IsAwaitable/IsAwaitable.csproj
       - run: dotnet build --configuration Release tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj --framework netcoreapp3.1
-      - name: Install minicover
-        run: dotnet tool install --global minicover
-      - name: Setup tests
-        run: |
-          minicover instrument
-          minicover reset
-      - name: Execute tests
-        run: dotnet test --configuration Release --framework netcoreapp3.1 --no-build --verbosity normal
-      - name: Release tests from minicover
-        run: minicover uninstrument
-      - name: Upload coverage
-        env:
-          COVERALL_REPO_TOKEN: ${{ secrets.COVERALL_REPO_TOKEN }}
-          JOB_ID: ${{ github.run_id }}
-        run: |
-          commit_hash=$(git rev-parse --short "$GITHUB_SHA")
-          current_branch=${GITHUB_REF##*/}
-          minicover coverallsreport --repo-token "$COVERALL_REPO_TOKEN" --service-name "github-ci" --service-job-id "$JOB_ID" --branch "$current_branch" --commit "$commit_hash"
+      - name: Collect coverage
+        run: dotnet test --configuration Release --framework netcoreapp3.1 /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=lcov
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: coverage-results
-          path: |
-            coverage-hits/
-            coverage.json
+          path: tests/IsAwaitable.Tests/coverage/coverage.netcoreapp3.1.info
+      - name: Upload to Coveralls.io
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: tests/IsAwaitable.Tests/coverage/coverage.netcoreapp3.1.info
