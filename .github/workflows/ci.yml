@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - name: Build
-        run: dotnet build src/IsAwaitable/IsAwaitable.csproj --configuration Release --no-restore
+        run: dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --no-restore
 
   test:
     needs: build
@@ -35,13 +35,13 @@ jobs:
           dotnet-version: 2.1.x
       - name: Setup .NET Framework
         uses: microsoft/setup-msbuild@v1.0.2
-      - run: dotnet build --configuration Release
+      - run: dotnet build -c Release
       - name: Execute tests on .NET Core 3.1
-        run: dotnet test --configuration Release --framework netcoreapp3.1 --no-build --verbosity normal
+        run: dotnet test -c Release --framework netcoreapp3.1 --no-build --verbosity normal
       - name: Execute tests on .NET Core 2.0
-        run: dotnet test --configuration Release --framework netcoreapp2.1 --no-build --verbosity normal
+        run: dotnet test -c Release --framework netcoreapp2.1 --no-build --verbosity normal
       - name: Execute tests on .NET Framework 4.6.1
-        run: dotnet test --configuration Release --framework net461 --no-build --verbosity normal
+        run: dotnet test -c Release --framework net461 --no-build --verbosity normal
 
   coverage:
     needs: test
@@ -51,13 +51,14 @@ jobs:
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.x
-      - run: dotnet build --configuration Release src/IsAwaitable/IsAwaitable.csproj
-      - run: dotnet build --configuration Release tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj --framework netcoreapp3.1
+      - run: dotnet build -c Debug src/IsAwaitable/IsAwaitable.csproj
+      - run: dotnet build -c Debug tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj --framework netcoreapp3.1
       - name: Collect coverage
-        run: dotnet test --configuration Release --framework netcoreapp3.1 /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=lcov
+        run: dotnet test -c Debug --framework netcoreapp3.1 /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=lcov
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v2
         with:
+          name: coverage.info
           path: tests/IsAwaitable.Tests/coverage/coverage.netcoreapp3.1.info
       - name: Upload to Coveralls.io
         uses: coverallsapp/github-action@v1.1.2
