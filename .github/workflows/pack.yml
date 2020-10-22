@@ -14,12 +14,17 @@ jobs:
           dotnet-version: 3.1.x
       - run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - run: dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --no-restore
+      - name: Install requirements
+        run: |
+          sudo apt-get install -y unzip
+          sudo apt-get install -y xmlstarlet
+          sudo apt-get install -y zip
       - name: Create package
         working-directory: ./pack
-        run: ./pack_isawaitable.sh
+        run: sudo ./pack_isawaitable.sh
       - uses: actions/upload-artifact@v2
         with:
           name: nuget
           path: |
-            pack/*.nupkg
-            pack/*.snupkg
+            *.nupkg
+            *.snupkg
