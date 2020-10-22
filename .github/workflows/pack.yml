@@ -26,5 +26,5 @@ jobs:
         with:
           name: nuget
           path: |
-            *.nupkg
-            *.snupkg
+            pack/*.nupkg
+            pack/*.snupkg
