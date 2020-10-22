@@ -15,9 +15,8 @@ jobs:
       - run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - run: dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --no-restore
       - name: Create package
-        run: |
-          cd pack/
-          pack_isawaitable.sh
+        working-directory: ./pack
+        run: pack_isawaitable.sh
       - uses: actions/upload-artifact@v2
         with:
           name: nuget
