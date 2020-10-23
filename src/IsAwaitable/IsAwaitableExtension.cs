@@ -4,25 +4,40 @@ using static IsAwaitable.AwaitableInspector;
 namespace System.Threading.Tasks
 {
     /// <summary>
+    /// Extension methods determining if instances or types can be awaited.
+    /// </summary>
+    /// <remarks>
+    /// <para>
     /// (from the c# language specification)
     /// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions
-    /// 
-    /// An expression t is awaitable if one of the following holds:
-    ///   - t is of compile time type dynamic
-    ///   
-    ///   - t has an accessible instance or extension method called GetAwaiter
-    ///     with no parameters and no type parameters, and a return type A
+    /// </para>
+    /// <para>An expression t is awaitable if one of the following holds:</para>
+    /// <para>- <c>t</c> is of compile time type <c>dynamic</c></para>
+    /// <para>- <c>t</c> has an accessible instance or extension method called <c>GetAwaiter</c>
+    ///     with no parameters and no type parameters, and a return type <c>A</c>
     ///     for which all of the following hold:
-    ///     
-    ///     - A implements the interface System.Runtime.CompilerServices.INotifyCompletion
-    ///     
-    ///     - A has an accessible, readable instance property IsCompleted of type bool
-    ///
-    ///     - A has an accessible instance method GetResult with no parameters
-    ///       and no type parameters
-    /// </summary>
+    /// </para>
+    /// <para>-- <c>A</c> implements the interface <c>System.Runtime.CompilerServices.INotifyCompletion</c></para>
+    /// <para>-- <c>A</c> has an accessible, readable instance property <c>IsCompleted</c> of type <c>bool</c></para>
+    /// <para>-- <c>A</c> has an accessible instance method <c>GetResult</c> with no parameters and no type parameters</para>
+    /// </remarks>
     public static class IsAwaitableExtension
     {
+        /// <summary>
+        /// Determines whether the given instance can be awaited.
+        /// </summary>
+        /// <param name="instance">The instance to be inspected.</param>
+        /// <returns>
+        /// <c>true</c> when the instance can be awaited,
+        /// or <c>false</c> when it can't or is null.
+        /// </returns>
+        /// <example>
+        /// <code>
+        /// object instance = argument;
+        /// if (instance.IsAwaitable())
+        ///     await (dynamic) instance;
+        /// </code>
+        /// </example>
         public static bool IsAwaitable(this object? instance)
         {
             if (instance is null)
@@ -32,6 +47,24 @@ namespace System.Threading.Tasks
             return type.IsAwaitable();
         }
 
+        /// <summary>
+        /// Determines whether instances of the given <c>Type</c> can be awaited.
+        /// </summary>
+        /// <param name="type">The <c>Type</c> to be inspected.</param>
+        /// <returns>
+        /// <c>true</c> when the type matches the language specification for
+        /// awaitable expressions, or <c>false</c> when it doesn't.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when the type parameter is null.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// T instance = argument;
+        /// if (typeof(T).IsAwaitable())
+        ///     await (dynamic) instance;
+        /// </code>
+        /// </example>
         public static bool IsAwaitable(this Type type)
         {
             var evaluation = GetEvaluationFor(type);
@@ -41,6 +74,24 @@ namespace System.Threading.Tasks
                 evaluation == TypeEvaluation.AwaitableWithResult;
         }
 
+        /// <summary>
+        /// Determines whether the given instance can be awaited
+        /// and the operation will return a result.
+        /// </summary>
+        /// <param name="instance">The instance to be inspected.</param>
+        /// <returns>
+        /// <c>true</c> when the instance can be awaited and returns a result,
+        /// or <c>false</c> when it can't or is null.
+        /// </returns>
+        /// <example>
+        /// <code>
+        /// object instance = argument;
+        /// if (instance.IsAwaitableWithResult())
+        /// {
+        ///     var result = await (dynamic)instance;
+        /// }
+        /// </code>
+        /// </example>
         public static bool IsAwaitableWithResult(this object? instance)
         {
             if (instance is null)
@@ -50,6 +101,27 @@ namespace System.Threading.Tasks
             return type.IsAwaitableWithResult();
         }
 
+        /// <summary>
+        /// Determines whether instances of the given <c>Type</c> can be awaited
+        /// and the operation will return a result.
+        /// </summary>
+        /// <param name="type">The <c>Type</c> to be inspected.</param>
+        /// <returns>
+        /// <c>true</c> when the type matches the language specification for
+        /// awaitable expressions returning a result, or <c>false</c> when it doesn't.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when the type parameter is null.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// T instance = argument;
+        /// if (typeof(T).IsAwaitableWithResult())
+        /// {
+        ///     var result = await (dynamic)instance;
+        /// }
+        /// </code>
+        /// </example>
         public static bool IsAwaitableWithResult(this Type type)
         {
             var evaluation = GetEvaluationFor(type);

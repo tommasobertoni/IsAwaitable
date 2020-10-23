@@ -90,11 +90,10 @@ namespace IsAwaitable
             return true;
         }
 
-        /// <summary>
-        /// Source: https://stackoverflow.com/a/299526/3743963
-        /// </summary>
         private static IReadOnlyList<MethodInfo> GetExtensionMethodsFor(Type targetType)
         {
+            // Source: https://stackoverflow.com/a/299526/3743963
+
             var query = from type in targetType.Assembly.DefinedTypes
                         where type.IsSealed && !type.IsGenericType && !type.IsNested
                         from method in type.GetMethods(BindingFlags.Static
