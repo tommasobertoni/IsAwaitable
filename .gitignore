@@ -1,5 +1,6 @@
 pack/*.*
 !pack/*.sh
+pack/pack.sh
 coverage-hits/
 coverage.*
 
