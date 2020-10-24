@@ -20,31 +20,41 @@ jobs:
       - name: Build
         run: dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --no-restore
 
-  test:
+  test-netcore:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet: ["2.1.x", "3.1.x"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core ${{ matrix.dotnet }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+      - run: dotnet restore
+      - run: dotnet build -c Release --no-restore
+      - name: Execute tests on .NET Core 3.1
+        if: ${{ matrix.dotnet == '3.1.x' }}
+        run: dotnet test -c Release --framework netcoreapp3.1 --no-build --verbosity normal
+      - name: Execute tests on .NET Core 2.1
+        if: ${{ matrix.dotnet == '2.1.x' }}
+        run: dotnet test -c Release --framework netcoreapp2.1 --no-build --verbosity normal
+
+  test-netframework:
     needs: build
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core 3.1
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.x
-      - name: Setup .NET Core 2.1
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 2.1.x
       - name: Setup .NET Framework
         uses: microsoft/setup-msbuild@v1.0.2
-      - run: dotnet build -c Release
-      - name: Execute tests on .NET Core 3.1
-        run: dotnet test -c Release --framework netcoreapp3.1 --no-build --verbosity normal
-      - name: Execute tests on .NET Core 2.0
-        run: dotnet test -c Release --framework netcoreapp2.1 --no-build --verbosity normal
+      - run: dotnet restore
+      - run: dotnet build -c Release --no-restore
       - name: Execute tests on .NET Framework 4.6.1
         run: dotnet test -c Release --framework net461 --no-build --verbosity normal
 
   coverage:
-    needs: test
+    needs: [test-netcore, test-netframework]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
