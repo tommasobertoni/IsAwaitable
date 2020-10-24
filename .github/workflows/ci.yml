@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core
+      - name: Setup .NET Core 3.1
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.x
@@ -34,6 +34,10 @@ jobs:
           dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --framework netstandard2.1
           dotnet build tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj -c Release --framework netcoreapp3.1
           dotnet test --no-build --verbosity normal -c Release --framework netcoreapp3.1
+      - name: Setup .NET Core 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.x
       - name: Tests netstandard2.0 on .NET Core 2.1
         run: |
           dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --framework netstandard2.0
