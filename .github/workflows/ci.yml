@@ -33,7 +33,7 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet }}
       - run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
-      - run: dotnet dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release
+      - run: dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release
       - name: Execute tests on .NET Core 3.1
         if: ${{ matrix.dotnet == '3.1.x' }}
         run: |
