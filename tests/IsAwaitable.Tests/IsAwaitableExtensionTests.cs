@@ -40,6 +40,8 @@ namespace IsAwaitable
             Assert.True(typeof(Task<>).IsAwaitableWithResult());
             Assert.True(typeof(Task<int>).IsAwaitable());
             Assert.True(typeof(Task<int>).IsAwaitableWithResult());
+            Assert.True(typeof(Task<int>).IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(int), resultType);
         }
 
         [Fact]
@@ -72,6 +74,8 @@ namespace IsAwaitable
             Assert.True(typeof(ValueTask<>).IsAwaitableWithResult());
             Assert.True(typeof(ValueTask<int>).IsAwaitable());
             Assert.True(typeof(ValueTask<int>).IsAwaitableWithResult());
+            Assert.True(typeof(ValueTask<int>).IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(int), resultType);
         }
 
         [Fact]
@@ -80,6 +84,8 @@ namespace IsAwaitable
             var instance = new ValueTask<int>(42);
             Assert.True(instance.IsAwaitable());
             Assert.True(instance.IsAwaitableWithResult());
+            Assert.True(instance.IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(int), resultType);
             await instance;
         }
 
@@ -88,6 +94,8 @@ namespace IsAwaitable
         {
             Assert.True(typeof(CustomAwaitable).IsAwaitable());
             Assert.True(typeof(CustomAwaitable).IsAwaitableWithResult());
+            Assert.True(typeof(CustomAwaitable).IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(TimeSpan), resultType);
         }
 
         [Fact]
@@ -96,6 +104,8 @@ namespace IsAwaitable
             var instance = new CustomAwaitable();
             Assert.True(instance.IsAwaitable());
             Assert.True(instance.IsAwaitableWithResult());
+            Assert.True(instance.IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(TimeSpan), resultType);
             await instance;
         }
 
@@ -118,6 +128,8 @@ namespace IsAwaitable
         {
             Assert.True(typeof(CustomAwaitableViaExtension).IsAwaitable());
             Assert.True(typeof(CustomAwaitableViaExtension).IsAwaitableWithResult());
+            Assert.True(typeof(CustomAwaitableViaExtension).IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(bool), resultType);
         }
 
         [Fact]
@@ -126,6 +138,8 @@ namespace IsAwaitable
             var instance = new CustomAwaitableViaExtension();
             Assert.True(instance.IsAwaitable());
             Assert.True(instance.IsAwaitableWithResult());
+            Assert.True(instance.IsAwaitableWithResult(out var resultType));
+            Assert.Equal(typeof(bool), resultType);
             await instance;
         }
 

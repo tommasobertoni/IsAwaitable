@@ -46,11 +46,8 @@ namespace IsAwaitable
 
         [Theory]
         [InlineData(typeof(Task), false)]
-        [InlineData(typeof(CustomTask), false)]
         [InlineData(typeof(Task<>), true)]
-        [InlineData(typeof(CustomTask<>), true)]
         [InlineData(typeof(Task<object>), true)]
-        [InlineData(typeof(CustomTask<object>), true)]
         [InlineData(typeof(ValueTask), false)]
         [InlineData(typeof(ValueTask<>), true)]
         [InlineData(typeof(ValueTask<object>), true)]
@@ -60,6 +57,16 @@ namespace IsAwaitable
 
             if (shouldBeWithResult)
                 Assert.True(type.IsKnownAwaitableWithResult());
+        }
+
+        [Theory]
+        [InlineData(typeof(CustomTask))]
+        [InlineData(typeof(CustomTask<>))]
+        [InlineData(typeof(CustomTask<object>))]
+        public void Inheriting_awaitables_are_not_known(Type type)
+        {
+            Assert.False(type.IsKnownAwaitable());
+            Assert.False(type.IsKnownAwaitableWithResult());
         }
 
         [Theory]
@@ -79,22 +86,11 @@ namespace IsAwaitable
             }
         }
 
-        [Theory]
-        [InlineData(typeof(CustomGenericTaskWithoutResult<>))]
-        [InlineData(typeof(CustomGenericTaskWithoutResult<object>))]
-        public void Non_task_related_generics_are_not_confused(Type type)
-        {
-            Assert.True(type.IsKnownAwaitable());
-            Assert.False(type.IsKnownAwaitableWithResult());
-        }
-
         public static IEnumerable<object[]> KnownAwaitableTypes() =>
             new object[][]
             {
                 new object[] { Task.CompletedTask, false },
-                new object[] { new CustomTask(() => { }), false },
                 new object[] { Task.FromResult(42), true },
-                new object[] { new CustomTask<int>(() => 42), true },
                 new object[] { new ValueTask(), false },
                 new object[] { new ValueTask<int>(42), true },
             };
