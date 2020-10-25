@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IsAwaitable
 {
@@ -8,7 +9,9 @@ namespace IsAwaitable
         private static readonly ConcurrentDictionary<Type, TypeEvaluation> _cache =
             new ConcurrentDictionary<Type, TypeEvaluation>();
 
-        public static bool TryGet(Type type, out TypeEvaluation evaluation)
+        public static bool TryGet(
+            Type type,
+            [NotNullWhen(true)] out TypeEvaluation? evaluation)
         {
             if (_cache.TryGetValue(type, out evaluation))
                 return true;

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IsAwaitable
 {
     /// <summary>
     /// Extension methods determining if instances or types math a known awaitable (type):
     /// Task, Task&lt;T&gt;, ValueTask, ValueTask&lt;T&gt;.
-    /// Publicly available, but mainly intended to be used by the
-    /// <see cref="System.Threading.Tasks.IsAwaitableExtension"/>.
     /// </summary>
     public static class IsKnownAwaitableExtension
     {
@@ -43,11 +41,8 @@ namespace IsAwaitable
         /// </exception>
         public static bool IsKnownAwaitable(this Type type)
         {
-            var evaluation = GetEvaluationFor(type);
-            
-            return
-                evaluation == TypeEvaluation.Awaitable ||
-                evaluation == TypeEvaluation.AwaitableWithResult;
+            var evaluation = KnownAwaitableEvaluator.Evaluate(type);
+            return evaluation.IsAwaitable;
         }
 
         /// <summary>
@@ -59,13 +54,35 @@ namespace IsAwaitable
         /// <c>true</c> when the instance is a known awaitable that returns
         /// a result, or <c>false</c> when it isn't or is null.
         /// </returns>
-        public static bool IsKnownAwaitableWithResult(this object? instance)
+        public static bool IsKnownAwaitableWithResult(this object? instance) =>
+            instance.IsKnownAwaitableWithResult(out _);
+
+        /// <summary>
+        /// Determines whether the given instance is a known awaitable that
+        /// returns a result: Task&lt;T&gt;, ValueTask&lt;T&gt;.
+        /// </summary>
+        /// <param name="instance">The instance to be inspected.</param>
+        /// <param name="resultType">
+        /// The type of the result of the <c>await</c> operation.
+        /// Null when the <paramref name="instance" /> is not an awaitable
+        /// that returns a result.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> when the instance is a known awaitable that returns
+        /// a result, or <c>false</c> when it isn't or is null.
+        /// </returns>
+        public static bool IsKnownAwaitableWithResult(
+            this object? instance,
+            [NotNullWhen(true)] out Type? resultType)
         {
             if (instance is null)
+            {
+                resultType = null;
                 return false;
+            }
 
             var type = instance.GetType();
-            return type.IsKnownAwaitableWithResult();
+            return type.IsKnownAwaitableWithResult(out resultType);
         }
 
         /// <summary>
@@ -80,53 +97,39 @@ namespace IsAwaitable
         /// <exception cref="System.ArgumentNullException">
         /// Thrown when the type parameter is null.
         /// </exception>
-        public static bool IsKnownAwaitableWithResult(this Type type)
+        public static bool IsKnownAwaitableWithResult(this Type type) =>
+            type.IsKnownAwaitableWithResult(out _);
+
+        /// <summary>
+        /// Determines whether the given <c>Type</c> is a known awaitable type
+        /// that returns a result: Task&lt;T&gt;, ValueTask&lt;T&gt;.
+        /// </summary>
+        /// <param name="type">The <c>Type</c> to be inspected.</param>
+        /// <param name="resultType">
+        /// The type of the result of the <c>await</c> operation.
+        /// Null when the <paramref name="type" /> is not an awaitable
+        /// that returns a result.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> when the type matches one of the known awaitable
+        /// types that return a result, or <c>false</c> when it doesn't.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when the type parameter is null.
+        /// </exception>
+        public static bool IsKnownAwaitableWithResult(
+            this Type type,
+            [NotNullWhen(true)] out Type? resultType)
         {
-            var evaluation = GetEvaluationFor(type);
-            return evaluation == TypeEvaluation.AwaitableWithResult;
-        }
+            var evaluation = KnownAwaitableEvaluator.Evaluate(type);
 
-        internal static TypeEvaluation GetEvaluationFor(this Type type)
-        {
-            if (type is null)
-                throw new ArgumentNullException(nameof(type));
-
-            // Known awaitable types are: Task, Task<>, ValueTask, ValueTask<>.
-
-            if (type.IsGenericType)
+            if (evaluation.IsAwaitableWithResult)
             {
-                if (type.IsSubclassOfRawGeneric(typeof(Task<>)))
-                    return TypeEvaluation.AwaitableWithResult;
-
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-
-                if (typeof(ValueTask<>) == genericTypeDefinition)
-                    return TypeEvaluation.AwaitableWithResult;
+                resultType = evaluation.ResultType;
+                return true;
             }
 
-            if (typeof(Task).IsAssignableFrom(type) ||
-                typeof(ValueTask) == type)
-                return TypeEvaluation.Awaitable;
-
-            return TypeEvaluation.NotAwaitable;
-        }
-
-        private static bool IsSubclassOfRawGeneric(this Type type, Type rawGenericType)
-        {
-            var toCheck = type;
-
-            while (toCheck is { } && toCheck != typeof(object))
-            {
-                var target = toCheck.IsGenericType
-                    ? toCheck.GetGenericTypeDefinition()
-                    : toCheck;
-                
-                if (rawGenericType == target)
-                    return true;
-
-                toCheck = toCheck.BaseType;
-            }
-
+            resultType = null;
             return false;
         }
     }

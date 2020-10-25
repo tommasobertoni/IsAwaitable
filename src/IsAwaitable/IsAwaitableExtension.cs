@@ -1,5 +1,5 @@
-﻿using IsAwaitable;
-using static IsAwaitable.AwaitableInspector;
+﻿using System.Diagnostics.CodeAnalysis;
+using IsAwaitable;
 
 namespace System.Threading.Tasks
 {
@@ -68,10 +68,7 @@ namespace System.Threading.Tasks
         public static bool IsAwaitable(this Type type)
         {
             var evaluation = GetEvaluationFor(type);
-            
-            return
-                evaluation == TypeEvaluation.Awaitable ||
-                evaluation == TypeEvaluation.AwaitableWithResult;
+            return evaluation.IsAwaitable;
         }
 
         /// <summary>
@@ -92,13 +89,44 @@ namespace System.Threading.Tasks
         /// }
         /// </code>
         /// </example>
-        public static bool IsAwaitableWithResult(this object? instance)
+        public static bool IsAwaitableWithResult(this object? instance) =>
+            instance.IsAwaitableWithResult(out _);
+
+        /// <summary>
+        /// Determines whether the given instance can be awaited
+        /// and the operation will return a result.
+        /// </summary>
+        /// <param name="instance">The instance to be inspected.</param>
+        /// <param name="resultType">
+        /// The type of the result of the <c>await</c> operation.
+        /// Null when the <paramref name="instance" /> is not an awaitable
+        /// that returns a result.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> when the instance can be awaited and returns a result,
+        /// or <c>false</c> when it can't or is null.
+        /// </returns>
+        /// <example>
+        /// <code>
+        /// object instance = argument;
+        /// if (instance.IsAwaitableWithResult(out var resultType))
+        /// {
+        ///     var result = await (dynamic)instance;
+        /// }
+        /// </code>
+        /// </example>
+        public static bool IsAwaitableWithResult(
+            this object? instance,
+            [NotNullWhen(true)] out Type? resultType)
         {
             if (instance is null)
+            {
+                resultType = null;
                 return false;
+            }
 
             var type = instance.GetType();
-            return type.IsAwaitableWithResult();
+            return type.IsAwaitableWithResult(out resultType);
         }
 
         /// <summary>
@@ -122,10 +150,49 @@ namespace System.Threading.Tasks
         /// }
         /// </code>
         /// </example>
-        public static bool IsAwaitableWithResult(this Type type)
+        public static bool IsAwaitableWithResult(this Type type) =>
+            type.IsAwaitableWithResult(out _);
+
+        /// <summary>
+        /// Determines whether instances of the given <c>Type</c> can be awaited
+        /// and the operation will return a result.
+        /// </summary>
+        /// <param name="type">The <c>Type</c> to be inspected.</param>
+        /// <param name="resultType">
+        /// The type of the result of the <c>await</c> operation.
+        /// Null when the <paramref name="type" /> is not an awaitable
+        /// that returns a result.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> when the type matches the language specification for
+        /// awaitable expressions returning a result, or <c>false</c> when it doesn't.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when the type parameter is null.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// T instance = argument;
+        /// if (typeof(T).IsAwaitableWithResult(out var resultType))
+        /// {
+        ///     var result = await (dynamic)instance;
+        /// }
+        /// </code>
+        /// </example>
+        public static bool IsAwaitableWithResult(
+            this Type type,
+            [NotNullWhen(true)] out Type? resultType)
         {
             var evaluation = GetEvaluationFor(type);
-            return evaluation == TypeEvaluation.AwaitableWithResult;
+
+            if (evaluation.IsAwaitableWithResult)
+            {
+                resultType = evaluation.ResultType;
+                return true;
+            }
+
+            resultType = null;
+            return false;
         }
 
         private static TypeEvaluation GetEvaluationFor(Type type)
@@ -133,41 +200,23 @@ namespace System.Threading.Tasks
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (type.IsKnownAwaitableWithResult())
-                return TypeEvaluation.AwaitableWithResult;
-
-            if (type.IsKnownAwaitable())
-                return TypeEvaluation.Awaitable;
-
             if (EvaluationCache.TryGet(type, out var evaluation))
                 return evaluation;
 
-            evaluation = InspectAndEvaluateIfTypeIsAwaitable(type);
+            var knownAwaitableEvaluation = KnownAwaitableEvaluator.Evaluate(type);
 
+            if (knownAwaitableEvaluation.IsAwaitable)
+            {
+                EvaluationCache.Add(type, knownAwaitableEvaluation);
+                return knownAwaitableEvaluation;
+            }
+
+            // Not a known awaitable.
+
+            evaluation = AwaitableExpressionEvaluator.Evaluate(type);
             EvaluationCache.Add(type, evaluation);
 
             return evaluation;
-        }
-
-        private static TypeEvaluation InspectAndEvaluateIfTypeIsAwaitable(Type type)
-        {
-            if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
-                return TypeEvaluation.NotAwaitable;
-
-            var returnType = getAwaiterMethod.ReturnType;
-
-            if (!ImplementsINotifyCompletion(returnType))
-                return TypeEvaluation.NotAwaitable;
-
-            if (!HasIsCompletedProperty(returnType))
-                return TypeEvaluation.NotAwaitable;
-
-            if (!HasGetResultMethod(returnType, out var withResult))
-                return TypeEvaluation.NotAwaitable;
-
-            return withResult
-                ? TypeEvaluation.AwaitableWithResult
-                : TypeEvaluation.Awaitable;
         }
     }
 }
