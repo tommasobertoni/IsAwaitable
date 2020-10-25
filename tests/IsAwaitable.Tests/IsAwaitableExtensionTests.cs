@@ -200,6 +200,19 @@ namespace IsAwaitable
         }
 
         [Fact]
+        public void Awaiter_must_have_readable_IsCompleted_property()
+        {
+            Assert.False(typeof(NonReadableIsCompletedProperty).IsAwaitable());
+            Assert.False(typeof(NonReadableIsCompletedProperty).IsAwaitableWithResult());
+
+            // await new NonReadableIsCompletedProperty();
+            // Error CS4011 'await' requires that the return type
+            // 'NonReadableIsCompletedProperty' of 'NonReadableIsCompletedProperty.GetAwaiter()'
+            // have suitable 'IsCompleted', 'OnCompleted', and 'GetResult' members,
+            // and implement 'INotifyCompletion' or 'ICriticalNotifyCompletion'
+        }
+
+        [Fact]
         public void Awaiter_must_have_GetResult_method()
         {
             Assert.False(typeof(MissingGetResult).IsAwaitable());

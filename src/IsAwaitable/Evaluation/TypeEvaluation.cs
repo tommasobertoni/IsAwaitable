@@ -35,7 +35,7 @@ namespace IsAwaitable
             bool isAwaitable,
             Type? resultType = null)
         {
-            if (_resultType == typeof(void))
+            if (resultType == typeof(void))
                 throw new ArgumentException("Result type can't be 'void'.");
 
             IsAwaitable = isAwaitable;

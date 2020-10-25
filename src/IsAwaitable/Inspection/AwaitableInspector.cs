@@ -59,10 +59,11 @@ namespace IsAwaitable
                 BindingFlags.Public |
                 BindingFlags.Instance);
 
-            var isCompletedProperty = properties.FirstOrDefault(p =>
-                p.CanRead &&
-                p.Name == "IsCompleted" &&
-                p.PropertyType == typeof(bool));
+            var isCompletedProperty = properties
+                .Where(p => p.Name == "IsCompleted")
+                .Where(p => p.PropertyType == typeof(bool))
+                .Where(p => p.CanRead)
+                .FirstOrDefault();
 
             return isCompletedProperty is { };
         }
