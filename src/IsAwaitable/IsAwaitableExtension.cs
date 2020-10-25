@@ -1,5 +1,4 @@
 ﻿using IsAwaitable;
-using static IsAwaitable.AwaitableInspector;
 
 namespace System.Threading.Tasks
 {
@@ -68,10 +67,7 @@ namespace System.Threading.Tasks
         public static bool IsAwaitable(this Type type)
         {
             var evaluation = GetEvaluationFor(type);
-            
-            return
-                evaluation == TypeEvaluation.Awaitable ||
-                evaluation == TypeEvaluation.AwaitableWithResult;
+            return evaluation.IsAwaitable;
         }
 
         /// <summary>
@@ -125,7 +121,7 @@ namespace System.Threading.Tasks
         public static bool IsAwaitableWithResult(this Type type)
         {
             var evaluation = GetEvaluationFor(type);
-            return evaluation == TypeEvaluation.AwaitableWithResult;
+            return evaluation.IsAwaitableWithResult;
         }
 
         private static TypeEvaluation GetEvaluationFor(Type type)
@@ -142,32 +138,11 @@ namespace System.Threading.Tasks
             if (EvaluationCache.TryGet(type, out var evaluation))
                 return evaluation;
 
-            evaluation = InspectAndEvaluateIfTypeIsAwaitable(type);
+            evaluation = AwaitableExpressionEvaluator.Evaluate(type);
 
             EvaluationCache.Add(type, evaluation);
 
             return evaluation;
-        }
-
-        private static TypeEvaluation InspectAndEvaluateIfTypeIsAwaitable(Type type)
-        {
-            if (!TryGetGetAwaiterMethod(type, out var getAwaiterMethod))
-                return TypeEvaluation.NotAwaitable;
-
-            var returnType = getAwaiterMethod.ReturnType;
-
-            if (!ImplementsINotifyCompletion(returnType))
-                return TypeEvaluation.NotAwaitable;
-
-            if (!HasIsCompletedProperty(returnType))
-                return TypeEvaluation.NotAwaitable;
-
-            if (!HasGetResultMethod(returnType, out var withResult))
-                return TypeEvaluation.NotAwaitable;
-
-            return withResult
-                ? TypeEvaluation.AwaitableWithResult
-                : TypeEvaluation.Awaitable;
         }
     }
 }
