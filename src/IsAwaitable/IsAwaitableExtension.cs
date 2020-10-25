@@ -200,17 +200,20 @@ namespace System.Threading.Tasks
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (type.IsKnownAwaitableWithResult(out var resultType))
-                return TypeEvaluation.AwaitableWithResult(resultType);
-
-            if (type.IsKnownAwaitable())
-                return TypeEvaluation.Awaitable;
-
             if (EvaluationCache.TryGet(type, out var evaluation))
                 return evaluation;
 
-            evaluation = AwaitableExpressionEvaluator.Evaluate(type);
+            var knownAwaitableEvaluation = KnownAwaitableEvaluator.Evaluate(type);
 
+            if (knownAwaitableEvaluation.IsAwaitable)
+            {
+                EvaluationCache.Add(type, knownAwaitableEvaluation);
+                return knownAwaitableEvaluation;
+            }
+
+            // Not a known awaitable.
+
+            evaluation = AwaitableExpressionEvaluator.Evaluate(type);
             EvaluationCache.Add(type, evaluation);
 
             return evaluation;

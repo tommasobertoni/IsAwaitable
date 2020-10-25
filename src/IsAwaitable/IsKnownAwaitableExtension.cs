@@ -6,8 +6,6 @@ namespace IsAwaitable
     /// <summary>
     /// Extension methods determining if instances or types math a known awaitable (type):
     /// Task, Task&lt;T&gt;, ValueTask, ValueTask&lt;T&gt;.
-    /// Publicly available, but mainly intended to be used by the
-    /// <see cref="System.Threading.Tasks.IsAwaitableExtension"/>.
     /// </summary>
     public static class IsKnownAwaitableExtension
     {

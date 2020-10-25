@@ -25,7 +25,7 @@ namespace IsAwaitable
             // If returns "void", it behaves like "Task" or "ValueTask".
             // If instead it returns something else, it behaves like "Task<T>" or "ValueTask<T>"
 
-            return getResultMethod.ReturnType != typeof(void)
+            return getResultMethod.ReturnType == typeof(void)
                 ? TypeEvaluation.Awaitable
                 : TypeEvaluation.AwaitableWithResult(getResultMethod.ReturnType);
         }
