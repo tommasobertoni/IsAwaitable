@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-#if !NETSTANDARD2_0
-using System.Diagnostics.CodeAnalysis;
-#endif
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+#if !NETSTANDARD2_0
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace IsAwaitable
 {
@@ -19,34 +19,38 @@ namespace IsAwaitable
             [MaybeNullWhen(false)] out MethodInfo getAwaiterMethod)
 #endif
         {
-            getAwaiterMethod = type.GetMethod("GetAwaiter",
+            getAwaiterMethod = null;
+
+            var match = type.GetMethod("GetAwaiter",
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.InvokeMethod);
 
-            if (getAwaiterMethod is { } &&
-                !getAwaiterMethod.IsPrivate &&
-                getAwaiterMethod.GetParameters().Length == 0)
+            if (match is { } &&
+                !match.IsPrivate &&
+                match.GetParameters().Length == 0)
             {
+                getAwaiterMethod = match;
                 return true;
             }
 
             // Find an extension method.
 
-            var extensions = GetExtensionMethodsFor(type);
+            var extensions = ListExtensionMethodsFor(type);
 
             if (!extensions.Any())
                 return false;
 
-            getAwaiterMethod = extensions.FirstOrDefault(m =>
+            var extensionMatch = extensions.FirstOrDefault(m =>
                 m.Name == "GetAwaiter" &&
                 !m.IsPrivate &&
                 m.GetParameters().Length == 1);
 
-            if (getAwaiterMethod is { })
-                return true;
+            if (extensionMatch is null)
+                return false;
 
-            return false;
+            getAwaiterMethod = extensionMatch;
+            return true;
         }
 
         public static bool ImplementsINotifyCompletion(Type type)
@@ -69,38 +73,40 @@ namespace IsAwaitable
             return isCompletedProperty is { };
         }
 
-        public static bool HasGetResultMethod(Type type, out bool withResult)
+        public static bool TryGetGetResultMethod(
+            Type type,
+#if NETSTANDARD2_0
+            out MethodInfo getResultMethod)
+#else
+            [MaybeNullWhen(false)] out MethodInfo getResultMethod)
+#endif
         {
-            var method = type.GetMethod("GetResult",
+            getResultMethod = null;
+
+            var match = type.GetMethod("GetResult",
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.InvokeMethod);
 
-            if (method is null || method.GetParameters().Length != 0)
-            {
-                withResult = false;
+            if (match is null || match.GetParameters().Length != 0)
                 return false;
-            }
 
-            // GetResult() found!
-            // If returns "void", it behaves like "Task" or "ValueTask".
-            // If instead it returns something else, it behaves like "Task<T>" or "ValueTask<T>"
-
-            withResult = method.ReturnType != typeof(void);
+            getResultMethod = match;
             return true;
         }
 
-        private static IReadOnlyList<MethodInfo> GetExtensionMethodsFor(Type targetType)
+        private static IReadOnlyList<MethodInfo> ListExtensionMethodsFor(Type targetType)
         {
             // Source: https://stackoverflow.com/a/299526/3743963
 
-            var query = from type in targetType.Assembly.DefinedTypes
-                        where type.IsSealed && !type.IsGenericType && !type.IsNested
-                        from method in type.GetMethods(BindingFlags.Static
-                            | BindingFlags.Public | BindingFlags.NonPublic)
-                        where method.IsDefined(typeof(ExtensionAttribute), false)
-                        where method.GetParameters()[0].ParameterType == targetType
-                        select method;
+            var query =
+                from type in targetType.Assembly.DefinedTypes
+                where type.IsSealed && !type.IsGenericType && !type.IsNested
+                from method in type.GetMethods(
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                where method.IsDefined(typeof(ExtensionAttribute), false)
+                where method.GetParameters()[0].ParameterType == targetType
+                select method;
 
             return query.ToArray();
         }
