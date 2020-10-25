@@ -11,7 +11,7 @@ namespace IsAwaitable
 
         public static bool TryGet(
             Type type,
-            [MaybeNullWhen(false)] out TypeEvaluation evaluation)
+            [NotNullWhen(true)] out TypeEvaluation evaluation)
         {
             if (_cache.TryGetValue(type, out evaluation))
                 return true;

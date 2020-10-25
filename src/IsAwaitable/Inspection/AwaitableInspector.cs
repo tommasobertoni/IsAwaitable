@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-#if !NETSTANDARD2_0
 using System.Diagnostics.CodeAnalysis;
-#endif
 
 namespace IsAwaitable
 {
@@ -13,11 +11,7 @@ namespace IsAwaitable
     {
         public static bool TryGetGetAwaiterMethod(
             Type type,
-#if NETSTANDARD2_0
-            out MethodInfo getAwaiterMethod)
-#else
-            [MaybeNullWhen(false)] out MethodInfo getAwaiterMethod)
-#endif
+            [NotNullWhen(true)] out MethodInfo? getAwaiterMethod)
         {
             getAwaiterMethod = null;
 
@@ -75,11 +69,7 @@ namespace IsAwaitable
 
         public static bool TryGetGetResultMethod(
             Type type,
-#if NETSTANDARD2_0
-            out MethodInfo getResultMethod)
-#else
-            [MaybeNullWhen(false)] out MethodInfo getResultMethod)
-#endif
+            [NotNullWhen(true)] out MethodInfo? getResultMethod)
         {
             getResultMethod = null;
 
