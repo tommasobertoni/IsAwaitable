@@ -23,7 +23,9 @@ bool IsAwaitable(this Type type);
 
 // Check if it's awaitable and returns a result
 bool IsAwaitableWithResult(this object? instance);
+bool IsAwaitableWithResult(this object? instance, out Type? resultType);
 bool IsAwaitableWithResult(this Type type);
+bool IsAwaitableWithResult(this Type type, out Type? resultType);
 // var foo = await x;
 ```
 ...and some bonus ones:
@@ -36,23 +38,23 @@ bool IsKnownAwaitable(this Type type);
 
 // Is Task<T> or ValueTask<T>
 bool IsKnownAwaitableWithResult(this object? instance);
+bool IsKnownAwaitableWithResult(this object? instance, out Type? resultType);
 bool IsKnownAwaitableWithResult(this Type type);
+bool IsKnownAwaitableWithResult(this Type type, out Type? resultType);
 ```
 
 ## How does it work?
 
-The evaluation works as follows:
-
 ```
-if it's a known awaitable type
-    return true (and if it returns a result)
-
 if it has already been inspected before
     return cached evaluation
 
-evaluation = EvaluateAsPerLanguageSpecification(type)
+if it's a known awaitable type
+    cache evaluation
+    return evaluation
 
-cache(evaluation)
+evaluation = evaluate as per language specification (type)
+cache evaluation
 
 return evaluation
 ```
@@ -66,7 +68,7 @@ The [c# language specification for awaitable expressions](https://docs.microsoft
 >    * `A` has an accessible, readable instance property `IsCompleted` of type `bool`
 >    * `A` has an accessible instance method `GetResult` with no parameters and no type parameters
 
-## Samples
+## Usage
 
 ```csharp
 // On instances
@@ -123,6 +125,6 @@ var result2 = await AwaitResultOrReturn(fooTask);
 ## Continuous Integration
 
 [![github-actions](https://img.shields.io/badge/using-GitHub%20Actions-2088FF)](https://github.com/features/actions)
-[![xUnit](https://img.shields.io/badge/using-xUnit-indigo)](https://xunit.net/)
-[![minicover](https://img.shields.io/badge/using-minicover-indigo)](https://github.com/lucaslorentz/minicover)
-[![coveralls](https://img.shields.io/badge/using-coveralls-c05547)](https://coveralls.io/)
+[![xUnit](https://img.shields.io/badge/using-xUnit-512bd4)](https://xunit.net/)
+[![coverlet](https://img.shields.io/badge/using-coverlet-512bd4)](https://github.com/coverlet-coverage/coverlet)
+[![coveralls.io](https://img.shields.io/badge/using-coveralls.io-c05547)](https://coveralls.io/)
