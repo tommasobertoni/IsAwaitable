@@ -15,14 +15,16 @@ namespace IsAwaitable
         {
             getAwaiterMethod = null;
 
-            var match = type.GetMethod("GetAwaiter",
-                BindingFlags.Instance |
-                BindingFlags.Public |
-                BindingFlags.InvokeMethod);
+            var match = type
+                .GetMethods(
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.InvokeMethod)
+                .Where(m => m.Name == "GetAwaiter")
+                .Where(m => m.GetParameters().Length == 0)
+                .FirstOrDefault();
 
-            if (match is { } &&
-                !match.IsPrivate &&
-                match.GetParameters().Length == 0)
+            if (!(match is null))
             {
                 getAwaiterMethod = match;
                 return true;
@@ -74,12 +76,16 @@ namespace IsAwaitable
         {
             getResultMethod = null;
 
-            var match = type.GetMethod("GetResult",
-                BindingFlags.Instance |
-                BindingFlags.Public |
-                BindingFlags.InvokeMethod);
+            var match = type
+                .GetMethods(
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.InvokeMethod)
+                .Where(m => m.Name == "GetResult")
+                .Where(m => m.GetParameters().Length == 0)
+                .FirstOrDefault();
 
-            if (match is null || match.GetParameters().Length != 0)
+            if (match is null)
                 return false;
 
             getResultMethod = match;

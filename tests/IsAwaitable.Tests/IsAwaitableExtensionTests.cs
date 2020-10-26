@@ -251,6 +251,30 @@ namespace IsAwaitable
             Assert.False(type.IsAwaitableWithResult());
         }
 
+        [Fact]
+        public void GetAwaiter_overloads_are_ignored()
+        {
+            Assert.True(typeof(DoubleGetAwaiter).IsAwaitable());
+        }
+
+        [Fact]
+        public void GetResult_must_be_parameterless()
+        {
+            Assert.False(typeof(DecoyGetResult).IsAwaitable());
+        }
+
+        [Fact]
+        public void GetResult_overloads_are_ignored()
+        {
+            Assert.True(typeof(DoubleGetResult).IsAwaitable());
+        }
+
+        [Fact]
+        public void GetAwaiter_must_be_parameterless()
+        {
+            Assert.False(typeof(DecoyGetAwaiter).IsAwaitable());
+        }
+
         public void Dispose()
         {
             EvaluationCache.Clear();
