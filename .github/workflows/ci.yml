@@ -58,6 +58,7 @@ jobs:
           dotnet test --no-build --verbosity normal -c Release --framework net461
 
   coverage:
+    if: ${{ github.event_name == 'push' }}
     needs: [test-netcore, test-netframework]
     runs-on: ubuntu-latest
     steps:
