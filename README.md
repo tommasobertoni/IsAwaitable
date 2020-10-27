@@ -2,7 +2,7 @@
 
 [![License MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Nuget](https://img.shields.io/nuget/v/IsAwaitable)](https://www.nuget.org/packages/IsAwaitable)
-[![netstandard2.1](https://img.shields.io/badge/netstandard-2.1-blue)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)
+[![netstandard2.0](https://img.shields.io/badge/netstandard-2.0-blue)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)
 
 | branch | build | coverage |
 |:------:|:-----:|:--------:|
