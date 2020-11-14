@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: 5.x
+          dotnet-version: 5.0.x
       - name: Install dependencies
         run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - name: Build
@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET 5
+      - name: Setup .NET 5 SDK and runtime
         uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: 5.x
+          dotnet-version: 5.0.x
       - name: Tests net5.0 on .NET 5
         run: |
           dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --framework net5.0
@@ -40,11 +40,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core 3.1
+      - name: Setup .NET 5 SDK
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 5.0.x
+      - name: Setup .NET 3.1 runtime
         uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: 3.1.x
-      - name: Setup .NET Core 2.1
+      - name: Setup .NET 2.1 runtime
         uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: 2.1.x
@@ -64,7 +68,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Framework
+      - name: Setup .NET 5 SDK
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 5.0.x
+      - name: Setup .NET Framework runtime
         uses: microsoft/setup-msbuild@v1.0.2
       - name: Tests netstandard2.0 on .NET Framework 4.6.1
         run: |
@@ -80,18 +88,18 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: 3.1.x
+          dotnet-version: 5.0.x
       - run: dotnet build -c Debug src/IsAwaitable/IsAwaitable.csproj
-      - run: dotnet build -c Debug tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj --framework netcoreapp3.1
+      - run: dotnet build -c Debug tests/IsAwaitable.Tests/IsAwaitable.Tests.csproj --framework net5.0
       - name: Collect coverage
-        run: dotnet test -c Debug --framework netcoreapp3.1 /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=lcov
+        run: dotnet test -c Debug --framework net5.0 /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=lcov
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v2
         with:
           name: coverage.info
-          path: tests/IsAwaitable.Tests/coverage/coverage.netcoreapp3.1.info
+          path: tests/IsAwaitable.Tests/coverage/coverage.net5.0.info
       - name: Upload to Coveralls.io
         uses: coverallsapp/github-action@v1.1.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: tests/IsAwaitable.Tests/coverage/coverage.netcoreapp3.1.info
+          path-to-lcov: tests/IsAwaitable.Tests/coverage/coverage.net5.0.info
