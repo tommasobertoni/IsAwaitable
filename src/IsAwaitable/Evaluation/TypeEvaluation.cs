@@ -4,12 +4,11 @@ namespace IsAwaitable
 {
     internal class TypeEvaluation
     {
-        public static readonly TypeEvaluation NotAwaitable = new TypeEvaluation(false);
+        public static readonly TypeEvaluation NotAwaitable = new(isAwaitable: false);
 
-        public static readonly TypeEvaluation Awaitable = new TypeEvaluation(true);
+        public static readonly TypeEvaluation Awaitable = new(isAwaitable: true);
 
-        public static TypeEvaluation AwaitableWithResult(Type resultType) =>
-            new TypeEvaluation(true, resultType);
+        public static TypeEvaluation AwaitableWithResult(Type resultType) => new(isAwaitable: true, resultType);
 
         public bool IsAwaitable { get; }
 
@@ -41,7 +40,7 @@ namespace IsAwaitable
             IsAwaitable = isAwaitable;
             _resultType = resultType;
 
-            IsAwaitableWithResult = isAwaitable && !(_resultType is null);
+            IsAwaitableWithResult = isAwaitable && _resultType is not null;
         }
     }
 }

@@ -6,8 +6,7 @@ namespace IsAwaitable
 {
     internal class EvaluationCache
     {
-        private static readonly ConcurrentDictionary<Type, TypeEvaluation> _cache =
-            new ConcurrentDictionary<Type, TypeEvaluation>();
+        private static readonly ConcurrentDictionary<Type, TypeEvaluation> _cache = new();
 
         public static bool TryGet(
             Type type,

@@ -9,8 +9,7 @@ namespace IsAwaitable
 
     static class AwaitableExtensions
     {
-        public static ExtensionAwaiter GetAwaiter(this CustomAwaitableViaExtension _) =>
-            new ExtensionAwaiter();
+        public static ExtensionAwaiter GetAwaiter(this CustomAwaitableViaExtension _) => new();
     }
 
     class ExtensionAwaiter : INotifyCompletion
