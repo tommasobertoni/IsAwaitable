@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: 3.1.x
+          dotnet-version: 5.0.x
       - run: dotnet restore src/IsAwaitable/IsAwaitable.csproj
       - run: dotnet build src/IsAwaitable/IsAwaitable.csproj -c Release --no-restore
       - name: Install requirements

@@ -24,7 +24,7 @@ namespace IsAwaitable
                 .Where(m => m.GetParameters().Length == 0)
                 .FirstOrDefault();
 
-            if (!(match is null))
+            if (match is not null)
             {
                 getAwaiterMethod = match;
                 return true;

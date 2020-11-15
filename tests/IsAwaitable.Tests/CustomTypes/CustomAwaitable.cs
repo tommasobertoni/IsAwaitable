@@ -6,8 +6,7 @@ namespace IsAwaitable
 {
     class CustomAwaitable
     {
-        public CustomAwaiter GetAwaiter() =>
-            new CustomAwaiter();
+        public CustomAwaiter GetAwaiter() => new();
     }
 
     class CustomAwaiter : INotifyCompletion
