@@ -1,10 +1,21 @@
 ﻿using System;
+using System.Threading.Tasks;
+using IsAwaitable.Analysis;
 using Xunit;
 
 namespace IsAwaitable
 {
     public class TypeEvaluationTests
     {
+        private readonly TypeEvaluation _awaitableEvaluation;
+        private readonly TypeEvaluation _awaitableWithResultEvaluation;
+
+        public TypeEvaluationTests()
+        {
+            _awaitableEvaluation = TypeEvaluation.From(Awaitable.Describe<Task>());
+            _awaitableWithResultEvaluation = TypeEvaluation.From(Awaitable.Describe<Task<int>>());
+        }
+
         [Fact]
         public void Non_awaitable_matches_description()
         {
@@ -16,34 +27,34 @@ namespace IsAwaitable
         [Fact]
         public void Awaitable_matches_description()
         {
-            Assert.NotNull(TypeEvaluation.Awaitable);
-            Assert.True(TypeEvaluation.Awaitable.IsAwaitable);
-            Assert.False(TypeEvaluation.Awaitable.IsAwaitableWithResult);
+            Assert.True(_awaitableEvaluation.IsAwaitable);
+            Assert.False(_awaitableEvaluation.IsAwaitableWithResult);
+        }
+
+        [Fact]
+        public void Known_awaitable_matches_description()
+        {
+            Assert.True(_awaitableEvaluation.IsKnownAwaitable);
         }
 
         [Fact]
         public void Awaitable_with_result_matches_description()
         {
-            var eval = TypeEvaluation.AwaitableWithResult(typeof(int));
-            Assert.NotNull(eval);
-            Assert.True(eval.IsAwaitable);
-            Assert.True(eval.IsAwaitableWithResult);
+            Assert.True(_awaitableWithResultEvaluation.IsAwaitableWithResult);
+        }
+
+        [Fact]
+        public void Known_awaitable_with_result_matches_description()
+        {
+            Assert.True(_awaitableWithResultEvaluation.IsKnownAwaitableWithResult);
         }
 
         [Fact]
         public void Awaitable_with_result_has_a_result()
         {
-            var eval = TypeEvaluation.AwaitableWithResult(typeof(int));
-            Assert.True(eval.IsAwaitableWithResult);
-            Assert.NotNull(eval.ResultType);
-            Assert.Equal(typeof(int), eval.ResultType);
-        }
-
-        [Fact]
-        public void Error_if_result_type_is_void()
-        {
-            Assert.Throws<ArgumentException>(() =>
-                TypeEvaluation.AwaitableWithResult(typeof(void)));
+            Assert.True(_awaitableWithResultEvaluation.IsAwaitableWithResult);
+            Assert.NotNull(_awaitableWithResultEvaluation.ResultType);
+            Assert.Equal(typeof(int), _awaitableWithResultEvaluation.ResultType);
         }
 
         [Fact]
@@ -53,7 +64,7 @@ namespace IsAwaitable
                 TypeEvaluation.NotAwaitable.ResultType);
 
             Assert.Throws<InvalidOperationException>(() =>
-                TypeEvaluation.Awaitable.ResultType);
+                _awaitableEvaluation.ResultType);
         }
     }
 }

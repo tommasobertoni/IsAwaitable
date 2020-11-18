@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using IsAwaitable.Analysis;
 
 namespace IsAwaitable
 {
@@ -41,8 +43,12 @@ namespace IsAwaitable
         /// </exception>
         public static bool IsKnownAwaitable(this Type type)
         {
-            var evaluation = KnownAwaitableEvaluator.Evaluate(type);
-            return evaluation.IsAwaitable;
+            var description = Awaitable.Describe(type);
+
+            if (description is null || !description.IsKnownAwaitable)
+                return false;
+
+            return true;
         }
 
         /// <summary>
@@ -121,9 +127,10 @@ namespace IsAwaitable
             this Type type,
             [NotNullWhen(true)] out Type? resultType)
         {
-            var evaluation = KnownAwaitableEvaluator.Evaluate(type);
+            var evaluation = TypeEvaluationProvider.GetEvaluationFor(type);
 
-            if (evaluation.IsAwaitableWithResult)
+            if (evaluation.IsKnownAwaitable &&
+                evaluation.IsAwaitableWithResult)
             {
                 resultType = evaluation.ResultType;
                 return true;

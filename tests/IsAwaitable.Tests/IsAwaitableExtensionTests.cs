@@ -277,7 +277,7 @@ namespace IsAwaitable
 
         public void Dispose()
         {
-            EvaluationCache.Clear();
+            TypeEvaluationCache.Clear();
         }
     }
 }
