@@ -46,6 +46,7 @@ namespace IsAwaitable
         [Fact]
         public void Known_awaitable_with_result_matches_description()
         {
+            Assert.False(_awaitableEvaluation.IsKnownAwaitableWithResult);
             Assert.True(_awaitableWithResultEvaluation.IsKnownAwaitableWithResult);
         }
 

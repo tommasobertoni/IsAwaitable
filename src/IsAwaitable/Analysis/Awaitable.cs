@@ -40,6 +40,9 @@ namespace IsAwaitable.Analysis
         /// <returns>An <c>AwaitableDescription</c>.</returns>
         public static AwaitableDescription? Describe(Type type)
         {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+
             if (AwaitableDescriptionCache.TryGet(type, out var cached))
                 return cached;
 
