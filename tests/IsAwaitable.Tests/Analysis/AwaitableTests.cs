@@ -65,5 +65,32 @@ namespace IsAwaitable.Analysis
             var valueTaskDescription = Awaitable.Describe<ValueTask>();
             Assert.Equal(typeof(void), valueTaskDescription.ResultType);
         }
+
+        [Fact]
+        public void All_overloads_work()
+        {
+            var d1 = Awaitable.Describe<Task<int>>();
+            var d2 = Awaitable.Describe(typeof(Task<int>));
+            var d3 = Awaitable.Describe(Task.FromResult(42));
+
+            Test(d1);
+            Test(d2);
+            Test(d3);
+
+            // Local functions.
+
+            static void Test(AwaitableDescription description)
+            {
+                Assert.NotNull(description);
+                Assert.Equal(typeof(Task<int>), description.Type);
+                Assert.Equal(typeof(int), description.ResultType);
+                Assert.NotNull(description.GetAwaiterMethod);
+                Assert.NotNull(description.AwaiterDescriptor);
+                Assert.Equal(typeof(TaskAwaiter<int>), description.AwaiterDescriptor.Type);
+                Assert.NotNull(description.AwaiterDescriptor.IsCompletedProperty);
+                Assert.NotNull(description.AwaiterDescriptor.GetResultMethod);
+                Assert.Equal(description.ResultType, description.AwaiterDescriptor.GetResultMethod.ReturnType);
+            }
+        }
     }
 }
