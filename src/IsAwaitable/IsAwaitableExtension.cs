@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using IsAwaitable;
+using IsAwaitable.Analysis;
 
 namespace System.Threading.Tasks
 {
@@ -67,7 +68,7 @@ namespace System.Threading.Tasks
         /// </example>
         public static bool IsAwaitable(this Type type)
         {
-            var evaluation = GetEvaluationFor(type);
+            var evaluation = TypeEvaluationProvider.GetEvaluationFor(type);
             return evaluation.IsAwaitable;
         }
 
@@ -183,7 +184,7 @@ namespace System.Threading.Tasks
             this Type type,
             [NotNullWhen(true)] out Type? resultType)
         {
-            var evaluation = GetEvaluationFor(type);
+            var evaluation = TypeEvaluationProvider.GetEvaluationFor(type);
 
             if (evaluation.IsAwaitableWithResult)
             {
@@ -193,30 +194,6 @@ namespace System.Threading.Tasks
 
             resultType = null;
             return false;
-        }
-
-        private static TypeEvaluation GetEvaluationFor(Type type)
-        {
-            if (type is null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (EvaluationCache.TryGet(type, out var evaluation))
-                return evaluation;
-
-            var knownAwaitableEvaluation = KnownAwaitableEvaluator.Evaluate(type);
-
-            if (knownAwaitableEvaluation.IsAwaitable)
-            {
-                EvaluationCache.Add(type, knownAwaitableEvaluation);
-                return knownAwaitableEvaluation;
-            }
-
-            // Not a known awaitable.
-
-            evaluation = AwaitableExpressionEvaluator.Evaluate(type);
-            EvaluationCache.Add(type, evaluation);
-
-            return evaluation;
         }
     }
 }

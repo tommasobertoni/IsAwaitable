@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace IsAwaitable
+namespace IsAwaitable.Analysis
 {
     internal class AwaitableInspector
     {
@@ -55,19 +55,21 @@ namespace IsAwaitable
             return interfaces.Any(i => i == typeof(INotifyCompletion));
         }
 
-        public static bool HasIsCompletedProperty(Type type)
+        public static bool HasIsCompletedProperty(
+            Type type,
+            [NotNullWhen(true)] out PropertyInfo? isCompletedProperty)
         {
             var properties = type.GetProperties(
                 BindingFlags.Public |
                 BindingFlags.Instance);
 
-            var isCompletedProperty = properties
+            isCompletedProperty = properties
                 .Where(p => p.Name == "IsCompleted")
                 .Where(p => p.PropertyType == typeof(bool))
                 .Where(p => p.CanRead)
                 .FirstOrDefault();
 
-            return isCompletedProperty is { };
+            return isCompletedProperty is not null;
         }
 
         public static bool TryGetGetResultMethod(

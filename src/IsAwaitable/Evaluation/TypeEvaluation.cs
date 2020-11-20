@@ -1,4 +1,5 @@
 ﻿using System;
+using IsAwaitable.Analysis;
 
 namespace IsAwaitable
 {
@@ -6,13 +7,15 @@ namespace IsAwaitable
     {
         public static readonly TypeEvaluation NotAwaitable = new(isAwaitable: false);
 
-        public static readonly TypeEvaluation Awaitable = new(isAwaitable: true);
-
-        public static TypeEvaluation AwaitableWithResult(Type resultType) => new(isAwaitable: true, resultType);
+        public static TypeEvaluation From(AwaitableDescription descriptor) => new(descriptor);
 
         public bool IsAwaitable { get; }
 
         public bool IsAwaitableWithResult { get; }
+
+        public bool IsKnownAwaitable { get; }
+
+        public bool IsKnownAwaitableWithResult => IsAwaitableWithResult && IsKnownAwaitable;
 
         /// <exception cref="System.InvalidOperationException">
         /// Thrown when <see cref="IsAwaitableWithResult" /> returns <c>false</c>. />
@@ -22,7 +25,7 @@ namespace IsAwaitable
             get
             {
                 if (_resultType is null)
-                    throw new InvalidOperationException("Type doesn't return a type.");
+                    throw new InvalidOperationException("Type doesn't have a result.");
 
                 return _resultType;
             }
@@ -30,17 +33,23 @@ namespace IsAwaitable
 
         private readonly Type? _resultType;
 
-        private TypeEvaluation(
-            bool isAwaitable,
-            Type? resultType = null)
+        private TypeEvaluation(bool isAwaitable)
         {
-            if (resultType == typeof(void))
-                throw new ArgumentException("Result type can't be 'void'.");
-
             IsAwaitable = isAwaitable;
-            _resultType = resultType;
+            IsAwaitableWithResult = false;
+            _resultType = null;
+        }
 
-            IsAwaitableWithResult = isAwaitable && _resultType is not null;
+        private TypeEvaluation(AwaitableDescription descriptor)
+        {
+            IsAwaitable = true;
+            IsKnownAwaitable = descriptor.IsKnownAwaitable;
+
+            if (descriptor.ResultType != typeof(void))
+            {
+                IsAwaitableWithResult = true;
+                _resultType = descriptor.ResultType;
+            }
         }
     }
 }

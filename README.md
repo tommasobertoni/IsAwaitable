@@ -11,6 +11,8 @@
 
 Given an infinite amount of time, everything that can happen will eventually happen... including _**needing to know at runtime if an object or type can be dynamically awaited**_.
 
+[TL;DR](#Usage)
+
 The library provides the following extension methods:
 
 ```csharp
@@ -42,24 +44,23 @@ bool IsKnownAwaitableWithResult(this object? instance, out Type? resultType);
 bool IsKnownAwaitableWithResult(this Type type);
 bool IsKnownAwaitableWithResult(this Type type, out Type? resultType);
 ```
+If you want to see _how_ a type, or instance, is compliant with an awaitable expression, you can use the `Awaitable` type:
+```csharp
+using IsAwaitable.Analysis;
 
-## How does it work?
+_ = Awaitable.Describe("hello");
+// null
 
+var description = Awaitable.Describe(typeof(MyCustomAwaitableType));
+if (description is not null)
+{
+    var resultType = description.ResultType;
+}
+
+var taskDescription = Awaitable.Describe<Task>();
+var isKnownAwaitable = taskDescripti.IsKnownAwaitable;
 ```
-if it has already been inspected before
-    return cached evaluation
-
-if it's a known awaitable type
-    cache evaluation
-    return evaluation
-
-evaluation = evaluate as per language specification (type)
-cache evaluation
-
-return evaluation
-```
-
-The [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions) states that:
+The `Describe` function inspects the type to check if it matches the [c# language specification for awaitable expressions](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions):
 
 > An expression `t` is awaitable if one of the following holds:
 > * `t` is of compile time type `dynamic`
