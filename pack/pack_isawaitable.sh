@@ -9,4 +9,4 @@ if ! test -f "$pack_file"; then
 fi
 
 chmod a+x $pack_file
-bash $pack_file -P "../src/IsAwaitable/IsAwaitable.csproj" -B -F "net5.0" -S -O "tommasobertoni" -L "../LICENSE"
+bash $pack_file -P "../src/IsAwaitable/IsAwaitable.csproj" -B -S -O "tommasobertoni" -L "../LICENSE"
