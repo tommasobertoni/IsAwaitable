@@ -1,5 +1,4 @@
-﻿
-namespace IsAwaitable.Analysis
+﻿namespace IsAwaitable.Analysis
 {
     internal class AwaitableDescriptionCache : Cache<AwaitableDescription>
     {
