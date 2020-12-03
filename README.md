@@ -129,4 +129,4 @@ var result2 = await AwaitResultOrReturn(fooTask);
 [![xUnit](https://img.shields.io/badge/using-xUnit-512bd4)](https://xunit.net/)
 [![coverlet](https://img.shields.io/badge/using-coverlet-512bd4)](https://github.com/coverlet-coverage/coverlet)
 [![coveralls.io](https://img.shields.io/badge/using-coveralls.io-c05547)](https://coveralls.io/)
-[![codefactor.io](https://img.shields.io/badge/using-codefactor.io-1dc898)](https://www.codefactor.io/)
+[![codefactor.io](https://img.shields.io/badge/using-codefactor.io-35bd97)](https://www.codefactor.io/)
