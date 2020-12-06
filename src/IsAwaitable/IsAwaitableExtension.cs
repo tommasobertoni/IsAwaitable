@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using IsAwaitable;
-using IsAwaitable.Analysis;
 
 namespace System.Threading.Tasks
 {

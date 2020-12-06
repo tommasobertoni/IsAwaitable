@@ -1,4 +1,4 @@
-# IsAwaitable
+# <img src="assets/logo/logo-128.png" height="32px" /> IsAwaitable
 
 [![License MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Nuget](https://img.shields.io/nuget/v/IsAwaitable)](https://www.nuget.org/packages/IsAwaitable)
@@ -130,3 +130,7 @@ var result2 = await AwaitResultOrReturn(fooTask);
 [![coverlet](https://img.shields.io/badge/using-coverlet-512bd4)](https://github.com/coverlet-coverage/coverlet)
 [![coveralls.io](https://img.shields.io/badge/using-coveralls.io-c05547)](https://coveralls.io/)
 [![codefactor.io](https://img.shields.io/badge/using-codefactor.io-35bd97)](https://www.codefactor.io/)
+
+## Icon
+
+Created by [The Icon Z](https://thenounproject.com/theiconz/) from [The Noun Project](https://thenounproject.com/).
